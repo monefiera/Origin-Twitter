@@ -7,7 +7,7 @@ Mod apk with 10 color themes and recaptured all Twitter elements in Japanese<br>
 ### Important Section
 [Piko Revanced Patch](https://github.com/crimera/piko) is NOT INCLUDED in this builds.<br>
 Please patch it yourself to use [Revanced Manager](https://github.com/ReVanced/revanced-manager) or [Revancify](https://github.com/decipher3114/Revancify).<br>
-I recommend Revancify because it is error prone<br>
+I recommend Revancify because it is less error than RVManager.<br>
 LSPatch※ can inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
 ※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
 I'm currently looking for a patchable LSPatch.<br>
