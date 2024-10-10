@@ -1,4 +1,7 @@
 # Origin-Twitter
+![GitHub Downloads](https://img.shields.io/github/downloads/monefiera/Origin-Twitter/total?color=green&style=for-the-badge&logo=github)
+![GitHub Issues](https://img.shields.io/github/issues/monefiera/Origin-Twitter?style=for-the-badge&logo=github)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
 My Personal Build apk for JP & Colorful Lovers<br>
 
 ## About this
