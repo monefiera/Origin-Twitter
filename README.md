@@ -43,7 +43,7 @@ And also you can choose my best colors<br>
 <details>
 This may be a little confusing, but please use it as hints for a complete color patch implementation and Bring Back Twitter fix.<br>
 This covers of piko's Bring Back Twitter patch partially.<br>
-
+<br>
 1: Replace “?dynamicColorGray1100” or “@color/gray_1100” in the file with “@color/twitter_blue”.<br>  
 - res\layout\ocf_twitter_logo.xml
 - res\layout\channels_toolbar_main.xml
@@ -59,6 +59,7 @@ This covers of piko's Bring Back Twitter patch partially.<br>
 And change the value of “abstractColorLink” in **<style name=“PaletteStandard” parent=“@style/HorizonColorPaletteLight”>** to @color/twitter_blue.<br>
 
 At this point, the preparation is complete.<br>
+
 5: In color.xml, change “badge_verified” value to @color/blue_500 and “twitter_blue” to #ff (any color code).<br>
 In addition, change “deep_transparent_twitter_blue”, “twitter_blue_opacity_30”, “twitter_blue_opacity_50”, and “twitter_blue_opacity_58”, paying attention to # and the first two characters.<br>
 
