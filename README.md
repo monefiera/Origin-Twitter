@@ -24,7 +24,7 @@ I'm currently looking for a patchable LSPatch.<br>
 ## State changes in original apk
 - Bring Back Twitter※ without relying on piko patch
 ※Fix ugly alterations(including blands) by Elon Musk<br>
-- Replaced Post with Tweet
+- Replaced Post with Tweet(but only EN & JP)
 - Change Color Theme but it needs reinstall
 
 ## Color Menu
