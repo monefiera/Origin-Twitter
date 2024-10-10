@@ -81,7 +81,7 @@ At 4, the color of notification column is treated to be linked to the theme. Als
 
 ## Credits
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
-・[Mufti Faishal](https://twitter.com/Mufti96)：Help to smali color value<br>
+・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Help to smali color value<br>
 ・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 ・[Risa Yuzuki](https://yuzu-risa.com)：[Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM) name holder which is one of my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
