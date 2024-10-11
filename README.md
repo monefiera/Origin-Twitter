@@ -22,13 +22,14 @@ I'm currently looking for a patchable LSPatch.<br>
 ・[Hex To Smali Online Converter](https://pantrif.github.io/HexToSmaliConverter/#) to analyze some colors<br>
 
 ## State changes in original apk
-- Bring Back Twitter※ without relying on piko patch
+- Bring Back Twitter※ without relying on piko patch<br>
 ※Fix ugly alterations(including blands) by Elon Musk<br>
 - Replaced Post with Tweet(but only EN & JP)
 - Change Color Theme but it needs reinstall
 
 ## Color Menu
 You can choose from several color themes like Twitter for Web<br>
+
 ①Original Twitter's Colors<br>
 💧Origin Blue(#1d9bf0)<br>
 ⭐Star Gold(#fed400)<br>
@@ -36,7 +37,9 @@ You can choose from several color themes like Twitter for Web<br>
 🐙Octopus Purple(#7856ff)<br>
 🔥Flare Orange(#ff7a00)<br>
 🥑Avocado Green(#31c88e)<br>
+
 And also you can choose my best colors<br>
+
 ②FIERA's Additional Colors<br>
 🌹Crimsonate(#c20024)<br>
 💎Izumo Lazurite(#1e50a2)<br>
@@ -53,7 +56,7 @@ This covers of piko's Bring Back Twitter patch partially.<br>
 ・res\layout\channels_toolbar_main.xml<br>
 ・res\layout\login_toolbar_seamful_custom_view.xml<br>
 ・style name="Theme.LaunchScreen"'s [windowSplashScreenBackground] in res\values\styles.xml<br>
-[ic_launcher_background] in res\values\colors.xml<br>
+・[ic_launcher_background] in res\values\colors.xml<br>
 
 2: Replace “#ff1d9bf0” with “@color/twitter_blue” in all files in the res folder except (res\values\)colors.xml and styles.xml.<br>
 
@@ -81,7 +84,7 @@ At 4, the color of notification column is treated to be linked to the theme. Als
 
 ## Credits
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
-・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Help to smali color value<br>
+・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helper to smali color value<br>
 ・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 ・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM), which is my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
