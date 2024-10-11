@@ -43,7 +43,7 @@ And also you can choose my best colors<br>
 ☁Monotone(#808080)<br>
 🩷MateChan Pink(#ffadc0)<br>
 
-## How to make colorful mod?(for therealswak & piko developers)
+## How to make colorful mod?(for piko developers)
 <details>
 This may be a little confusing, but please use it as hints for a complete color patch implementation and Bring Back Twitter fix.<br>
 This covers of piko's Bring Back Twitter patch partially.<br>
