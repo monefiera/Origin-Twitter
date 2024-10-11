@@ -43,17 +43,17 @@ And also you can choose my best colors<br>
 ☁Monotone(#808080)<br>
 🩷MateChan Pink(#ffadc0)<br>
 
-## How to make colorful mod?(for piko developers)
+## How to make colorful mod (for piko developers)
 <details>
 This may be a little confusing, but please use it as hints for a complete color patch implementation and Bring Back Twitter fix.<br>
 This covers of piko's Bring Back Twitter patch partially.<br>
 <br>
 1: Replace “?dynamicColorGray1100” or “@color/gray_1100” in the file with “@color/twitter_blue”.<br>  
-- res\layout\ocf_twitter_logo.xml
-- res\layout\channels_toolbar_main.xml
-- res\layout\login_toolbar_seamful_custom_view.xml
-- style name="Theme.LaunchScreen"'s [windowSplashScreenBackground] in res\values\styles.xml
-- [ic_launcher_background] in res\values\colors.xml<br>
+・res\layout\ocf_twitter_logo.xml<br>
+・res\layout\channels_toolbar_main.xml<br>
+・res\layout\login_toolbar_seamful_custom_view.xml<br>
+・style name="Theme.LaunchScreen"'s [windowSplashScreenBackground] in res\values\styles.xml<br>
+[ic_launcher_background] in res\values\colors.xml<br>
 
 2: Replace “#ff1d9bf0” with “@color/twitter_blue” in all files in the res folder except (res\values\)colors.xml and styles.xml.<br>
 
