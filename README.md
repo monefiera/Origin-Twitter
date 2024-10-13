@@ -4,14 +4,19 @@
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
 My Personal Build apk for JP & Colorful Lovers<br>
 
+## Note
+- [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in piko based on my method](https://github.com/crimera/piko/pull/430). Thank you so much!
+- Also therealswak/Swakshan, main developer of [piko patch](https://github.com/crimera/piko), [was positive about implementing the color patch into piko](https://t.me/pikopatches/1/17092). So [I opened a issue](https://github.com/crimera/piko/issues/431) and shared what I've done for developers in this README.
+- When the color patch is implemented in piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
+
 ## About this
 Mod apk with 10 color themes and recaptured all Twitter elements in Japanese<br>
 
 ### Important Section
-[Piko Revanced Patch](https://github.com/crimera/piko) is NOT INCLUDED in this builds.<br>
-Please patch it yourself to use [Revanced Manager](https://github.com/ReVanced/revanced-manager) or [Revancify](https://github.com/decipher3114/Revancify).<br>
-I recommend Revancify because it is less error than RVManager.<br>
-LSPatch※ can inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
+**Piko Revanced Patch is NOT INCLUDED in this builds**.<br>
+Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
+I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
+LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
 ※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
 I'm currently looking for a patchable LSPatch.<br>
 
