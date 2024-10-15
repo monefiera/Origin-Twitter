@@ -56,22 +56,44 @@ And also you can choose my best colors<br>
 This may be a little confusing, but please use it as hints for a complete color patch implementation and Bring Back Twitter fix.<br>
 This covers of piko's Bring Back Twitter patch partially.<br>
 <br>
-1: Replace “?dynamicColorGray1100” or “@color/gray_1100” in the file with “@color/twitter_blue”.<br>  
+1: Replace “?dynamicColorGray1100” or “@color/gray_1100” in this files with “@color/twitter_blue”.<br>  
 ・res\layout\ocf_twitter_logo.xml<br>
 ・res\layout\channels_toolbar_main.xml<br>
 ・res\layout\login_toolbar_seamful_custom_view.xml<br>
 ・style name="Theme.LaunchScreen"'s [windowSplashScreenBackground] in res\values\styles.xml<br>
 ・[ic_launcher_background] in res\values\colors.xml<br>
 
-2: Replace “#ff1d9bf0” with “@color/twitter_blue” in all files in the res folder except (res\values\)colors.xml and styles.xml.<br>
-
+2: Replace “#ff1d9bf0” or "#ff1da1f2" with “@color/twitter_blue” in this files.<br>
+・res\drawable\all_links_nudge_title_icon.xml<br>
+・res\drawable\ic_ellipses.xml<br>
+・res\drawable\ic_map_pin.xml<br>
+・res\drawable\ic_toast_survey_complete.xml<br>
+・res\drawable\ic_toxicity.xml<br>
+・res\drawable\ic_vector_camera_shortcut.xml<br>
+・res\drawable\ic_vector_colorpicker_off.xml<br>
+・res\drawable\ic_vector_colorpicker.xml<br>
+・res\drawable\ic_vector_follow_tint.xml<br>
+・res\drawable\ic_vector_illustration_ocf_contacts.xml<br>
+・res\drawable\ic_vector_illustration_sparkle_off.xml<br>
+・res\drawable\ic_vector_location_blue_tint.xml<br>
+・res\drawable\ic_vector_medium_camera_live_stroke_tint.xml<br>
+・res\drawable\ic_vector_medium_camera_stroke_tint.xml<br>
+・res\drawable\ic_vector_medium_camera_video_stroke_tint.xml<br>
+・res\drawable\ic_vector_medium_photo_stroke_tint.xml<br>
+・res\drawable\ic_vector_medium_trashcan_stroke_tint.xml<br>
+・res\drawable\ic_vector_search_shortcut.xml<br>
+・res\drawable\ps__bg_hydra_label.xml<br>
+・res\drawable\ps__ic_new_hydra_first_time_dialog_cancel.xml<br>
+   
+From here on down, styles and colors indicate the xml under the res\values.<br>
+   
 3: In styles.xml, change value of “coreColorBadgeVerified” for **<style name="TwitterBase.Dim" parent="@style/PaletteDim">**, **<style name="TwitterBase.LightsOut" parent="@style/PaletteLightsOut">** and **<style name="TwitterBase.Standard" parent="@style/PaletteStandard">** to @color/blue_500.<br>
 
 4: In styles.xml, replace “abstractColorUnread” values of **<style name="PaletteDim" parent="@style/HorizonColorPaletteDark">**, **<style name="PaletteLightsOut" parent="@style/HorizonColorPaletteDark">** and **<style name="PaletteStandard" parent="@style/HorizonColorPaletteLight">** to @color/twitter_blue_opacity_50.<br>
 And change the value of “abstractColorLink” in **<style name=“PaletteStandard” parent=“@style/HorizonColorPaletteLight”>** to @color/twitter_blue.<br>
-
+   
 At this point, the preparation is complete.<br>
-
+   
 5: In color.xml, change “badge_verified” value to @color/blue_500 and “twitter_blue” to #ff (any color code).<br>
 In addition, change “deep_transparent_twitter_blue”, “twitter_blue_opacity_30”, “twitter_blue_opacity_50”, and “twitter_blue_opacity_58”, paying attention to # and the first two characters.<br>
 
