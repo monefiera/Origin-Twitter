@@ -16,6 +16,8 @@ Mod apk with 10 color themes and recaptured all Twitter elements in Japanese<br>
 **Piko Revanced Patch is NOT INCLUDED in this builds**.<br>
 Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
 I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
+Currently (2024/10/22), it can be patched successfully by using the latest dev version in [Revanced Extended Manager](https://github.com/inotia00/revanced-manager).<br>
+
 LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
 ※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
 I'm currently looking for a patchable LSPatch.<br>
@@ -36,20 +38,20 @@ I'm currently looking for a patchable LSPatch.<br>
 You can choose from several color themes like Twitter for Web<br>
 
 ①Original Twitter's Colors<br>
-💧Origin Blue(#1d9bf0)<br>
-⭐Star Gold(#fed400)<br>
-🌸Sakura Red(#f91880)<br>
-🐙Octopus Purple(#7856ff)<br>
-🔥Flare Orange(#ff7a00)<br>
-🥑Avocado Green(#31c88e)<br>
+Origin Blue(#1d9bf0)<br>
+Star Gold(#fed400)<br>
+Sakura Red(#f91880)<br>
+Octopus Purple(#7856ff)<br>
+Flare Orange(#ff7a00)<br>
+Avocado Green(#31c88e)<br>
 
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
-🌹Crimsonate(#c20024)<br>
-💎Izumo Lazurite(#1e50a2)<br>
-☁Monotone(#808080)<br>
-🩷MateChan Pink(#ffadc0)<br>
+Crimsonate(#c20024)<br>
+Izumo Lazurite(#1e50a2)<br>
+Monotone(#808080)<br>
+MateChan Pink(#ffadc0)<br>
 
 ## How to make colorful mod (for piko developers)
 <details>
