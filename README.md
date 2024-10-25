@@ -37,21 +37,20 @@ I'm currently looking for a patchable LSPatch.<br>
 ## Color Menu
 You can choose from several color themes like Twitter for Web<br>
 
-①Original Twitter's Colors<br>
-Origin Blue(#1d9bf0)<br>
-Star Gold(#fed400)<br>
-Sakura Red(#f91880)<br>
-Octopus Purple(#7856ff)<br>
-Flare Orange(#ff7a00)<br>
-Avocado Green(#31c88e)<br>
+💧Origin Blue(#1d9bf0)<br>
+⭐Star Gold(#fed400)<br>
+🌸Sakura Red(#f91880)<br>
+🐙Octopus Purple(#7856ff)<br>
+🔥Flare Orange(#ff7a00)<br>
+🥑Avocado Green(#31c88e)<br>
 
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
-Crimsonate(#c20024)<br>
-Izumo Lazurite(#1e50a2)<br>
-Monotone(#808080)<br>
-MateChan Pink(#ffadc0)<br>
+🌹Crimsonate(#c20024)<br>
+💎Izumo Lazurite(#1e50a2)<br>
+☁Monotone(#808080)<br>
+🩷MateChan Pink(#ffadc0)<br>
 
 ## How to make colorful mod (for piko developers)
 <details>
