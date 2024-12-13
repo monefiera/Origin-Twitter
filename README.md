@@ -2,7 +2,7 @@
 ![GitHub Downloads](https://img.shields.io/github/downloads/monefiera/Origin-Twitter/total?color=green&style=for-the-badge&logo=github)
 ![GitHub Issues](https://img.shields.io/github/issues/monefiera/Origin-Twitter?style=for-the-badge&logo=github)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
-My Personal Build apk for JP & Colorful Lovers<br>
+My Personal Build apk for Colorful Lovers<br>
 
 ## Note
 - [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in piko based on my method](https://github.com/crimera/piko/pull/430). Thank you so much!
@@ -10,13 +10,16 @@ My Personal Build apk for JP & Colorful Lovers<br>
 - When the color patch is implemented in piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
 
 ## About this
-Mod apk with 10 color themes and recaptured all Twitter elements in Japanese<br>
+Mod apk with 10 color themes ~~and recaptured all Twitter elements in Japanese~~<br>
 
 ### Important Section
 **Piko Revanced Patch is NOT INCLUDED in this builds**.<br>
+Currently (2024/12/14), it can be patched successfully within [Revanced Extended Builder](https://github.com/inotia00/rvx-builder).
+<!-- 
 Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
 I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
 Currently (2024/10/22), it can be patched successfully by using the latest dev version in [Revanced Extended Manager](https://github.com/inotia00/revanced-manager).<br>
+-->
 
 LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
 ※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
@@ -31,7 +34,7 @@ I'm currently looking for a patchable LSPatch.<br>
 ## State changes in original apk
 - Bring Back Twitter※ without relying on piko patch<br>
 ※Fix ugly alterations(including blands) by Elon Musk<br>
-- Replaced Post with Tweet(but only EN & JP)
+- ~~Replaced Post with Tweet(but only EN & JP)~~
 - Change Color Theme but it needs reinstall
 
 ## Color Menu
@@ -47,7 +50,7 @@ You can choose from several color themes like Twitter for Web<br>
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
-🌹Crimsonate(#c20024)<br>
+🌹Crimsonate(#c9171e)<br>
 💎Izumo Lazurite(#1e50a2)<br>
 ☁Monotone(#808080)<br>
 🩷MateChan Pink(#ffadc0)<br>
@@ -95,7 +98,7 @@ And change the value of “abstractColorLink” in **<style name=“PaletteStand
    
 At this point, the preparation is complete.<br>
    
-5: In color.xml, change “badge_verified” value to @color/blue_500 and “twitter_blue” to #ff (any color code).<br>
+5: In color.xml, change “badge_verified” value to “twitter_blue” to #ff (any color code).<br>
 In addition, change “deep_transparent_twitter_blue”, “twitter_blue_opacity_30”, “twitter_blue_opacity_50”, and “twitter_blue_opacity_58”, paying attention to # and the first two characters.<br>
 
 6: Find two -0xE26410 values in the smali file and replace them with the FF (color code) specified in color.xml.<br>
