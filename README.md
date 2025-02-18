@@ -1,4 +1,5 @@
 # Origin-Twitter
+[<img src="badge_obtainium.png" alt="Get it on Obtainium" height="40">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.twitter.android%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fmonefiera%2FOrigin-Twitter%22%2C%22author%22%3A%22monefiera%22%2C%22name%22%3A%22Twitter%22%2C%22preferredApkIndex%22%3A1%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22dontSortReleasesList%5C%22%3Afalse%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%5C%22%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%7D%22%2C%22overrideSource%22%3Anull%7D)<br>
 ![GitHub Downloads](https://img.shields.io/github/downloads/monefiera/Origin-Twitter/total?color=green&style=for-the-badge&logo=github)
 ![GitHub Issues](https://img.shields.io/github/issues/monefiera/Origin-Twitter?style=for-the-badge&logo=github)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
@@ -13,7 +14,15 @@ My Personal Build apk for Colorful Lovers<br>
 Mod apk with 10 color themes ~~and recaptured all Twitter elements in Japanese~~<br>
 
 ### Important Section
-**Piko Revanced Patch is NOT INCLUDED in this builds**.<br>
+**The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
+
+This means that users can no longer choose between piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
+The working scripts are in my private repository (to prevent misuse of tokens), but I'll keep publicly available scripts without tokens in this repository. Please use them for your development.<br>
+
+(To piko Developers) Please let me know if you have any problems with this modding.<br>
+
+### Past Section
+<details>
 Currently (2024/12/14), it can be patched successfully within [Revanced Extended Builder](https://github.com/inotia00/rvx-builder).
 <!-- 
 Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
@@ -30,16 +39,17 @@ I'm currently looking for a patchable LSPatch.<br>
 ・[APKToolGUI](https://github.com/AndnixSH/APKToolGUI) & [Virtual Studio Code](https://code.visualstudio.com/) to edit any resources<br>
 ・[MT Manager](https://mt2.cn) to sign apk<br>
 ・[Hex To Smali Online Converter](https://pantrif.github.io/HexToSmaliConverter/#) to analyze some colors<br>
+</details>
 
 ## State changes in original apk
-- Bring Back Twitter※ without relying on piko patch<br>
-※Fix ugly alterations(including blands) by Elon Musk<br>
-- ~~Replaced Post with Tweet(but only EN & JP)~~
+- Bring Back Twitter again without relying on piko patch<br>
+※Fix ugly alterations by Elon Musk<br>
 - Change Color Theme but it needs reinstall
 
 ## Color Menu
 You can choose from several color themes like Twitter for Web<br>
 
+①Twitter Original Colors<br>
 💧Origin Blue(#1d9bf0)<br>
 ⭐Star Gold(#fed400)<br>
 🌸Sakura Red(#f91880)<br>
@@ -114,8 +124,10 @@ At 4, the color of notification column is treated to be linked to the theme. Als
 </details>
 
 ## Credits
+I continue to be grateful to them<br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
-・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helper to smali color value<br>
+・[crimera](https://github.com/crimera)：Currently I'm coloring his apk. Without his Revanced, Origin would not have continued.<br>
+・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to smali color value<br>
 ・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 ・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM), which is my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
