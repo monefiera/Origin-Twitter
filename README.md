@@ -17,7 +17,7 @@ Mod apk with 10 color themes ~~and recaptured all Twitter elements in Japanese~~
 **The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
 
 This means that users can no longer choose between piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
-The working scripts are in my private repository (to prevent misuse of tokens), but I'll opened my scripts without tokens in this repository soon. Please use them for development.<br>
+Workflow scripts are in my private repository (to prevent misuse of tokens), however, my scripts are also placed in this repository as zip files(token is set to null). Please use them for development.<br>
 
 (To piko Developers) Please let me know if you have any problems with this modding.<br>
 
