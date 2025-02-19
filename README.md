@@ -3,7 +3,7 @@
 ![GitHub Downloads](https://img.shields.io/github/downloads/monefiera/Origin-Twitter/total?color=green&style=for-the-badge&logo=github)
 ![GitHub Issues](https://img.shields.io/github/issues/monefiera/Origin-Twitter?style=for-the-badge&logo=github)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
-My Personal Build apk for Colorful Lovers<br>
+My Personal Twitter-mod Build for Colorful Lovers. based on [piko](https://github.com/crimera/piko)<br>
 
 ## Note
 - [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in piko based on my previous method](https://github.com/crimera/piko/pull/430). Thank you so much!
@@ -11,7 +11,7 @@ My Personal Build apk for Colorful Lovers<br>
 - When the color patch is implemented in piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
 
 ## About this
-Mod apk with 10 color themes ~~and recaptured all Twitter elements in Japanese~~<br>
+Mod app with 10 theme colors for piko-Twitter<br>
 
 ### Important Section
 **The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
@@ -19,37 +19,15 @@ Mod apk with 10 color themes ~~and recaptured all Twitter elements in Japanese~~
 This means that users can no longer choose between piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
 Workflow scripts are in my private repository (to prevent misuse of tokens), however, my scripts are also placed in this repository as zip files(token is set to null). Please use them for development.<br>
 
-(To piko Developers) Please let me know if you have any problems with this modding.<br>
+(To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
 
-### Past Section
-<details>
-Currently (2024/12/14), it can be patched successfully within [Revanced Extended Builder](https://github.com/inotia00/rvx-builder).
-<!-- 
-Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
-I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
-Currently (2024/10/22), it can be patched successfully by using the latest dev version in [Revanced Extended Manager](https://github.com/inotia00/revanced-manager).<br>
--->
-
-LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
-※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
-I'm currently looking for a patchable LSPatch.<br>
-
-## Using Tools
-・[AntiSplit-M](https://github.com/AbdurazaaqMohammed/AntiSplit-M) convert [apkmirror's apkm](https://www.apkmirror.com/apk/x-corp/twitter/) to apk<br>
-・[APKToolGUI](https://github.com/AndnixSH/APKToolGUI) & [Virtual Studio Code](https://code.visualstudio.com/) to edit any resources<br>
-・[MT Manager](https://mt2.cn) to sign apk<br>
-・[Hex To Smali Online Converter](https://pantrif.github.io/HexToSmaliConverter/#) to analyze some colors<br>
-</details>
-
-## State changes in original apk
-- Bring Back Twitter again without relying on piko patch<br>
-※Fix ugly alterations by Elon Musk<br>
-- Change Color Theme but it needs reinstall
+## Changes from original crimera's apk
+- You can choose their favorite color from 10 color themes<br>
+・All signatures are the same, so colors can be easily changed by re-installing the app (since v10.80.1)<br>
+・Origin Blue appears to have no significant change over the original, but minor color adjustments have been made<br>
 
 ## Color Menu
-You can choose from several color themes like Twitter for Web<br>
-
-①Twitter Original Colors<br>
+①Original Colors from Twitter for Web<br>
 💧Origin Blue(#1d9bf0)<br>
 ⭐Star Gold(#fed400)<br>
 🌸Sakura Red(#f91880)<br>
@@ -123,12 +101,32 @@ At 4, the color of notification column is treated to be linked to the theme. Als
 </details>
 </details>
 
+## Past Section(Documentation before 2025-02-20)
+<details>
+Currently (2024/12/14), it can be patched successfully within [Revanced Extended Builder](https://github.com/inotia00/rvx-builder).
+<!-- 
+Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
+I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
+Currently (2024/10/22), it can be patched successfully by using the latest dev version in [Revanced Extended Manager](https://github.com/inotia00/revanced-manager).<br>
+-->
+
+LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
+※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
+I'm currently looking for a patchable LSPatch.<br>
+
+### Using Tools
+・[AntiSplit-M](https://github.com/AbdurazaaqMohammed/AntiSplit-M) convert [apkmirror's apkm](https://www.apkmirror.com/apk/x-corp/twitter/) to apk<br>
+・[APKToolGUI](https://github.com/AndnixSH/APKToolGUI) & [Virtual Studio Code](https://code.visualstudio.com/) to edit any resources<br>
+・[MT Manager](https://mt2.cn) to sign apk<br>
+・[Hex To Smali Online Converter](https://pantrif.github.io/HexToSmaliConverter/#) to analyze some colors<br>
+・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
+</details>
+
 ## Credits
-I continue to be grateful to them<br>
+I continue to be grateful to them🙇🏻<br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
 ・[crimera](https://github.com/crimera)：Currently I'm coloring his apk. Without his Revanced, Origin would not have continued.<br>
-・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to smali color value<br>
-・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
-・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM), which is my most favorite song<br>
+・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to change smali color value. And Swakshan is Co-Founder of piko<br>
+・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM). It is my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
 ・And Another One Person...<br>
