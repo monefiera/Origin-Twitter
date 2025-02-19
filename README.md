@@ -17,7 +17,9 @@ Mod app with 10 theme colors for piko-Twitter<br>
 **The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
 
 This means that users can no longer choose between piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
-Workflow scripts are in my private repository (to prevent misuse of tokens), however, my scripts are also placed in this repository as zip files(token is set to null). Please use them for development.<br>
+Workflow scripts are in my private repository (to prevent misuse of tokens), however, my scripts are also placed in this repository as rar files.<br>
+~~Token portion lists [yuzurisa15](https://twitter.com/Yuzurisa15) instead.~~ Please use them for development.<br>
+
 
 (To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
 
