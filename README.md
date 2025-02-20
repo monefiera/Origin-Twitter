@@ -39,7 +39,7 @@ Currently, I use the prebuilt apk from crimera, but in the future I'll improve i
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
-🌹Crimsonate(#c9171e)<br>
+🌹Crimsonate(#c20024)<br>
 💎Izumo Lazurite(#1e50a2)<br>
 ☁Monotone(#808080)<br>
 🩷MateChan Pink(#ffadc0)<br>
