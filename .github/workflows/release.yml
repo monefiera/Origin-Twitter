@@ -1,0 +1,98 @@
+name: Auto Patch & Release APK
+
+on:
+  schedule:
+    - cron: "16 17 * * *"
+  workflow_dispatch:
+
+jobs:
+  patch_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Get latest release info from GitHub
+        id: get_release_piko_and_origin
+        run: |
+          CRIMERA_TAG=$(curl -s https://api.github.com/repos/crimera/twitter-apk/releases/latest | jq -r .tag_name)
+          echo "CRIMERA_TAG=${CRIMERA_TAG}" >> $GITHUB_ENV
+          MONEFIERA_TAG=$(curl -s https://api.github.com/repos/monefiera/Origin-Twitter/releases/latest | jq -r .tag_name)
+          echo "MONEFIERA_TAG=${MONEFIERA_TAG}" >> $GITHUB_ENV
+
+      - name: Check if releases match
+        id: check_releases
+        run: |
+          if [ "${{ env.CRIMERA_TAG }}" == "${{ env.MONEFIERA_TAG }}" ]; then
+            echo "Releases match. Skipping download and processing."
+            echo "SKIP=true" >> $GITHUB_ENV
+          else
+            echo "Releases differ. Proceeding with download and processing."
+            echo "SKIP=false" >> $GITHUB_ENV
+          fi
+
+      - name: Install requests and PyYAML
+        if: ${{ env.SKIP == 'false' }}
+        run: pip install requests PyYAML
+
+      - name: Install dependencies
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl wget jq unzip
+
+      - name: Install Android SDK & Build Tools
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
+          unzip sdk-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          yes | sdkmanager --install "platform-tools" "build-tools;34.0.0" "cmdline-tools;latest"
+
+      - name: Set environment variables
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
+
+      - name: Install apktool
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O apktool
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/
+          wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O apktool.jar
+          sudo mv apktool.jar /usr/local/bin/
+
+      - name: Create downloads directory if not exists
+        if: ${{ env.SKIP == 'false' }}
+        run: mkdir -p downloads
+
+      - name: Download APK file
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          wget "https://github.com/crimera/twitter-apk/releases/download/${{ env.CRIMERA_TAG }}/twitter-piko-v${{ env.CRIMERA_TAG }}.apk" -O downloads/twitter-piko-v${{ env.CRIMERA_TAG }}.apk
+
+      - name: List files in downloads directory
+        if: ${{ env.SKIP == 'false' }}
+        run: ls -l downloads/
+
+      - name: Run Patch APK script
+        if: ${{ env.SKIP == 'false' }}
+        run: python patch_apk.py
+
+      - name: Run Release APK script
+        if: ${{ env.SKIP == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.MONE_FIERA_TOKEN }}
+        run: python release_apk.py
