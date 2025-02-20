@@ -10,7 +10,7 @@ import zipfile
 
 APK_TOOL = "apktool"
 OUTPUT_DIR = "patched_apks"
-APK_VERSION = None  
+APK_VERSION = None  # ダウンロードAPKから取得する
 
 AAPT2 = "aapt2"
 KEYSTORE_PATH = "./origin-twitter.keystore"
@@ -18,7 +18,7 @@ ALIAS = "origin"
 STOREPASS = "123456789"
 KEYPASS = "123456789"
 
-# Mapping Space of ColorName & ColorCode
+# Colorcode & Colorname Mapping
 THEME_COLORS = {
     "1d9bf0": "Blue",
     "fed400": "Gold",
@@ -35,10 +35,10 @@ THEME_COLORS = {
 # 1. GitHub release version (using the VERSION environment variable obtained from GitHub)
 apk_version = os.getenv("CRIMERA_TAG")  
 apk_file_name = f"twitter-piko-v{apk_version}.apk"  
-apk_path = f"downloads/{apk_file_name}"  
-decompiled_path = f"downloads/{apk_file_name}_decompiled" 
+apk_path = f"downloads/{apk_file_name}" 
+decompiled_path = f"downloads/{apk_file_name}_decompiled"  
 
-print(f"APK Path: {apk_path}") 
+print(f"APK Path: {apk_path}")  
 
 def decompile_apk(apk_path, output_path):
     print(f"Checking if APK file exists: {apk_path}")
@@ -48,6 +48,7 @@ def decompile_apk(apk_path, output_path):
     subprocess.run([APK_TOOL, "d", apk_path, "-o", output_path, "--force"], check=True)
 
 def patch_apk(apk_path):
+    
     print(f"Decompiling APK: {apk_path}")
     decompile_apk(apk_path, decompiled_path)
 
@@ -62,7 +63,7 @@ def get_apk_version(apk_path):
         APK_VERSION = "unknown"
     print(f"Detected APK Version: {APK_VERSION}")
 
-# 3. Modding some XML
+# 3. Change some XML
 def modify_xml(decompiled_path):
     xml_files = [
         "res/layout/ocf_twitter_logo.xml",
@@ -83,7 +84,7 @@ def modify_xml(decompiled_path):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
-# 4. Fix styles.xml
+# 4. Modding styles.xml
 def modify_styles(decompiled_path):
     styles_path = os.path.join(decompiled_path, "res/values/styles.xml")
     if not os.path.exists(styles_path):
@@ -136,36 +137,36 @@ def modify_colors(decompiled_path, color):
     
     tree.write(colors_path, encoding="utf-8", xml_declaration=True)
 
-# 6. Modding smali code (for some hard-coded colors, such as the DM send field)
+# 6. Modding smali
 def hex_to_smali(hex_color):
-    """16進カラーコード (RRGGBB) を smali の負の16進数表記 (-0xXXXXXX00000000L) に変換する"""
-    int_color = int(hex_color, 16)  # 16進数カラーコードを整数に変換 (0xRRGGBB)
-    # smali の負数表記にするために 2の補数を取る (符号付き 32-bit に拡張)
-    smali_int = (int_color ^ 0xFFFFFF) + 1  # 1の補数を取って+1（2の補数）
-    # smali フォーマットに整形（小文字化）
+    """Convert hex color code (RRGGBB) to smali negative hex notation (-0xXXXXXX000000000000L)"""
+    int_color = int(hex_color, 16) 
+    # Take 2's complement to make smali negative notation (extended to signed 32-bit)
+    smali_int = (int_color ^ 0xFFFFFF) + 1  
+    # Formatted (lowercased) in smali format
     smali_value = f"-0x{smali_int:06x}"
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
-    """デコンパイルされた全 `.smali` ファイルを対象に `-0xe2641000000000L` を新しい値に置換する"""
-    smali_color = hex_to_smali(color) + "00000000L"  # `-0xXXXXXX00000000L` に変換
+    """Replace `-0xe2641000000000L` with the new value for all decompiled `.smali` files"""
+    smali_color = hex_to_smali(color) + "00000000L" 
     
-    # `-0xe2641000000000L` に厳密にマッチする正規表現
+    # Regular expression matching `-0xe2641000000000L` exactly
     pattern = re.compile(r"-0xe2641000000000L", re.IGNORECASE)
     
     print(f"Scanning all .smali files under: {decompiled_path}")
-    for root, _, files in os.walk(decompiled_path):  # `decompiled_path` 全体を探索
+    for root, _, files in os.walk(decompiled_path):  
         for file in files:
-            if file.endswith(".smali"):  # `.smali` ファイルのみ処理
+            if file.endswith(".smali"):  
                 smali_path = os.path.join(root, file)
                 print(f"Processing: {smali_path}")
                 with open(smali_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                # `-0xe2641000000000L` のみを新しい `-0xXXXXXX00000000L` に置換
+                # Replace only `-0xe2641000000000L` with new `-0xXXXXXX000000000000L`
                 new_content = pattern.sub(smali_color, content)
 
-                if new_content != content:  # 変更があった場合のみ書き込み
+                if new_content != content:  
                     with open(smali_path, "w", encoding="utf-8") as f:
                         f.write(new_content)
                     print(f"Modified: {smali_path}")
