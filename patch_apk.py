@@ -139,12 +139,10 @@ def modify_colors(decompiled_path, color):
 
 # 6. Modding smali
 def hex_to_smali(hex_color):
-    """Convert hex color code (RRGGBB) to smali negative hex notation (-0xXXXXXX000000000000L)"""
-    int_color = int(hex_color, 16) 
-    # Take 2's complement to make smali negative notation (extended to signed 32-bit)
-    smali_int = (int_color ^ 0xFFFFFF) + 1  
-    # Formatted (lowercased) in smali format
+    int_color = int(hex_color, 16)
+    smali_int = (int_color ^ 0xFFFFFF) + 1
     smali_value = f"-0x{smali_int:06x}"
+    print(f"Converted {hex_color} to smali {smali_value}")
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
@@ -207,15 +205,19 @@ def optimize_resources_arsc(apk_path):
     """Properly compress resources.arsc and place it on a 4-byte boundary"""
     optimized_apk = apk_path + ".optimized"
 
+    resources_config = "/tmp/aapt2_resources_config.xml"
+    with open(resources_config, "w") as f:
+    f.write("<config></config>")  # 空の設定ファイルを作成
+
     subprocess.run([
-        AAPT2, "optimize",
-        "--collapse-keystrings",
-        "--resources-config-path", "/dev/null",  
-        "--enable-sparse-encoding",
-        "--deduplicate-entry-values",
-        "--output-text-symbols", "/dev/null",
-        apk_path,
-        "-o", optimized_apk
+    AAPT2, "optimize",
+    "--collapse-keystrings",
+    "--resources-config-path", resources_config,
+    "--enable-sparse-encoding",
+    "--deduplicate-entry-values",
+    "--output-text-symbols", "/dev/null",
+    apk_path,
+    "-o", optimized_apk
     ], check=True)
 
     shutil.move(optimized_apk, apk_path)
