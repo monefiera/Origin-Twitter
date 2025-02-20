@@ -144,22 +144,35 @@ def hex_to_smali(hex_color):
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
-    smali_color = hex_to_smali(color) + "00000000L" 
+def hex_to_smali(hex_color):
     
+    int_color = int(hex_color, 16)  
+    
+    smali_int = (int_color ^ 0xFFFFFF) + 1  
+    
+    smali_value = f"-0x{smali_int:06x}"
+    return smali_value.lower()
+
+def modify_smali(decompiled_path, color):
+    
+    smali_color = hex_to_smali(color) + "00000000L"  
+    
+    # `-0xe2641000000000L` に厳密にマッチする正規表現
     pattern = re.compile(r"-0xe2641000000000L", re.IGNORECASE)
     
     print(f"Scanning all .smali files under: {decompiled_path}")
     for root, _, files in os.walk(decompiled_path):  
         for file in files:
-            if file.endswith(".smali"): 
+            if file.endswith(".smali"):  
                 smali_path = os.path.join(root, file)
                 print(f"Processing: {smali_path}")
                 with open(smali_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 
+                
                 new_content = pattern.sub(smali_color, content)
 
-                if new_content != content: 
+                if new_content != content:  
                     with open(smali_path, "w", encoding="utf-8") as f:
                         f.write(new_content)
                     print(f"Modified: {smali_path}")
