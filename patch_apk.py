@@ -196,10 +196,6 @@ def get_apksigner_path():
 
     raise FileNotFoundError("zipalign was not found.")
 
-def recompile_apk(decompiled_path, output_apk):
-
-    subprocess.run([APK_TOOL, "b", decompiled_path, "-o", output_apk], check=True)
-
 def optimize_resources_arsc(apk_path):
     """Properly compress resources.arsc and place it on a 4-byte boundary"""
     optimized_apk = apk_path + ".optimized"
@@ -209,10 +205,10 @@ def optimize_resources_arsc(apk_path):
         "--shorten-resource-paths",
         "--enable-sparse-encoding",
         "--deduplicate-entry-values",
+        "--collapse-keystrings", 
         apk_path,
         "-o", optimized_apk
     ], check=True)
-
 
     shutil.move(optimized_apk, apk_path)
     print(f"✅ Optimized resources.arsc : {apk_path}")
@@ -233,11 +229,11 @@ def sign_apk(apk_path):
     zipalign_path = get_zipalign_path()
     apksigner_path = get_apksigner_path()
 
-    # Alignment and optimization of resources.arsc
-    optimize_resources_arsc(apk_path)
+    # ✅ Run zipalign and optimize with AAPT2 optimize
     align_resources_arsc(apk_path)
+    optimize_resources_arsc(apk_path)
 
-    # V1 Sign (jarsigner)
+    # ✅ V1 Sign (jarsigner)
     subprocess.run([
         "jarsigner",
         "-verbose",
@@ -250,7 +246,7 @@ def sign_apk(apk_path):
         ALIAS
     ], check=True)
 
-    # V2, V3 Sign (apksigner)
+    # ✅ V2 & V3 Sign (apksigner)
     subprocess.run([
         apksigner_path,
         "sign",
@@ -265,7 +261,7 @@ def sign_apk(apk_path):
         apk_path
     ], check=True)
 
-    # Check Signature
+    # ✅ Signature Verification
     subprocess.run([apksigner_path, "verify", "--print-certs", apk_path], check=True)
 
     return apk_path
