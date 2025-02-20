@@ -138,13 +138,6 @@ def modify_colors(decompiled_path, color):
 
 # 6. Modding smali code (for some hard-coded colors, such as the DM send field)
 def hex_to_smali(hex_color):
-    int_color = int(hex_color, 16)  
-    smali_int = (int_color ^ 0xFFFFFF) + 1  
-    smali_value = f"-0x{smali_int:06x}"
-    return smali_value.lower()
-
-def modify_smali(decompiled_path, color):
-def hex_to_smali(hex_color):
     
     int_color = int(hex_color, 16)  
     
