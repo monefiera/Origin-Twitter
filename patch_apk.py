@@ -209,10 +209,11 @@ def optimize_resources_arsc(apk_path):
 
     subprocess.run([
         AAPT2, "optimize",
-        "--shorten-resource-paths",
+        "--collapse-keystrings",
+        "--resources-config-path", "/dev/null",  
         "--enable-sparse-encoding",
         "--deduplicate-entry-values",
-        "--collapse-keystrings", 
+        "--output-text-symbols", "/dev/null",
         apk_path,
         "-o", optimized_apk
     ], check=True)
@@ -221,26 +222,26 @@ def optimize_resources_arsc(apk_path):
     print(f"✅ Optimized resources.arsc : {apk_path}")
 
 def align_resources_arsc(apk_path):
-
+    """Place resources.arsc on a 4-byte boundary"""
     zipalign_path = get_zipalign_path()
     aligned_apk = apk_path + ".aligned"
 
-    # Place resources.arsc on a 4-byte boundary
     subprocess.run([zipalign_path, "-v", "4", apk_path, aligned_apk], check=True)
-    
 
     shutil.move(aligned_apk, apk_path)
-    print(f"✅ resources.arsc is now placed on a 4-byte boundary : {apk_path}")
+    print(f"✅ resources.arsc is now aligned on a 4-byte boundary : {apk_path}")
 
 def sign_apk(apk_path):
     zipalign_path = get_zipalign_path()
     apksigner_path = get_apksigner_path()
 
-    # ✅ Run zipalign and optimize with AAPT2 optimize
-    align_resources_arsc(apk_path)
+    # ✅ 1. Run AAPT2 Optimize to optimize resources.arsc
     optimize_resources_arsc(apk_path)
 
-    # ✅ V1 Sign (jarsigner)
+    # ✅ 2. Placement on 4-byte boundary with zipalign
+    align_resources_arsc(apk_path)
+
+    # ✅ 3. V1 sign (jarsigner)
     subprocess.run([
         "jarsigner",
         "-verbose",
@@ -253,7 +254,7 @@ def sign_apk(apk_path):
         ALIAS
     ], check=True)
 
-    # ✅ V2 & V3 Sign (apksigner)
+    # ✅ 4. V2 & V3 sign (apksigner)
     subprocess.run([
         apksigner_path,
         "sign",
@@ -268,7 +269,7 @@ def sign_apk(apk_path):
         apk_path
     ], check=True)
 
-    # ✅ Signature Verification
+    # ✅ 5. Signature Verification
     subprocess.run([apksigner_path, "verify", "--print-certs", apk_path], check=True)
 
     return apk_path
