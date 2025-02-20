@@ -33,7 +33,7 @@ THEME_COLORS = {
 }
 
 # 1. GitHub リリースバージョン（GitHub から取得した VERSION 環境変数を使用）
-apk_version = os.getenv('VERSION')  # GitHub Actions から VERSION 環境変数を取得
+apk_version = os.getenv('CRIMERA_TAG')  # GitHub Actions から VERSION 環境変数を取得
 apk_file_name = f"twitter-piko-v{apk_version}.apk"  # 正しいファイル名
 apk_path = f"downloads/{apk_file_name}"  # APK のパス
 decompiled_path = f"downloads/{apk_file_name}_decompiled"  # デコンパイルされたファイルのパス
