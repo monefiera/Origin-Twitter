@@ -205,19 +205,15 @@ def optimize_resources_arsc(apk_path):
     """Properly compress resources.arsc and place it on a 4-byte boundary"""
     optimized_apk = apk_path + ".optimized"
 
-    resources_config = "/tmp/aapt2_resources_config.xml"
-    with open(resources_config, "w") as f:
-    f.write("<config></config>")  # 空の設定ファイルを作成
-
     subprocess.run([
-    AAPT2, "optimize",
-    "--collapse-keystrings",
-    "--resources-config-path", resources_config,
-    "--enable-sparse-encoding",
-    "--deduplicate-entry-values",
-    "--output-text-symbols", "/dev/null",
-    apk_path,
-    "-o", optimized_apk
+        AAPT2, "optimize",
+        "--collapse-keystrings",
+        "--resources-config-path", 
+        "--enable-sparse-encoding",
+        "--deduplicate-entry-values",
+        "--output-text-symbols", "/dev/null",
+        apk_path,
+        "-o", optimized_apk
     ], check=True)
 
     shutil.move(optimized_apk, apk_path)
