@@ -138,34 +138,34 @@ def modify_colors(decompiled_path, color):
 
 # 6. Modding smali code (for some hard-coded colors, such as the DM send field)
 def hex_to_smali(hex_color):
-    
-    int_color = int(hex_color, 16)  
-    
-    smali_int = (int_color ^ 0xFFFFFF) + 1 
-    
+    """16進カラーコード (RRGGBB) を smali の負の16進数表記 (-0xXXXXXX00000000L) に変換する"""
+    int_color = int(hex_color, 16)  # 16進数カラーコードを整数に変換 (0xRRGGBB)
+    # smali の負数表記にするために 2の補数を取る (符号付き 32-bit に拡張)
+    smali_int = (int_color ^ 0xFFFFFF) + 1  # 1の補数を取って+1（2の補数）
+    # smali フォーマットに整形（小文字化）
     smali_value = f"-0x{smali_int:06x}"
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
     """デコンパイルされた全 `.smali` ファイルを対象に `-0xe2641000000000L` を新しい値に置換する"""
-    smali_color = hex_to_smali(color) + "00000000L"  
+    smali_color = hex_to_smali(color) + "00000000L"  # `-0xXXXXXX00000000L` に変換
     
-    
+    # `-0xe2641000000000L` に厳密にマッチする正規表現
     pattern = re.compile(r"-0xe2641000000000L", re.IGNORECASE)
     
     print(f"Scanning all .smali files under: {decompiled_path}")
-    for root, _, files in os.walk(decompiled_path):  
+    for root, _, files in os.walk(decompiled_path):  # `decompiled_path` 全体を探索
         for file in files:
-            if file.endswith(".smali"): 
+            if file.endswith(".smali"):  # `.smali` ファイルのみ処理
                 smali_path = os.path.join(root, file)
                 print(f"Processing: {smali_path}")
                 with open(smali_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                
+                # `-0xe2641000000000L` のみを新しい `-0xXXXXXX00000000L` に置換
                 new_content = pattern.sub(smali_color, content)
 
-                if new_content != content:  
+                if new_content != content:  # 変更があった場合のみ書き込み
                     with open(smali_path, "w", encoding="utf-8") as f:
                         f.write(new_content)
                     print(f"Modified: {smali_path}")
