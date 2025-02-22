@@ -3,21 +3,21 @@
 ![GitHub Downloads](https://img.shields.io/github/downloads/monefiera/Origin-Twitter/total?color=green&style=for-the-badge&logo=github)
 ![GitHub Issues](https://img.shields.io/github/issues/monefiera/Origin-Twitter?style=for-the-badge&logo=github)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/monefiera/Origin-Twitter?style=for-the-badge&logo=github)<br>
-My Personal Twitter-mod Build for Colorful Lovers. based on [piko](https://github.com/crimera/piko)<br>
+My Personal Twitter-mod Build for Colorful Lovers. based on [Piko](https://github.com/crimera/piko)<br>
 
 ## Note
-- [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in piko based on my previous method](https://github.com/crimera/piko/pull/430). Thank you so much!
-- Also therealswak/Swakshan, co-Founder of Piko, [was positive about implementing the color patch into piko](https://t.me/pikopatches/1/17092). So [I opened a issue](https://github.com/crimera/piko/issues/431) and shared what I've done for developers in this README.
-- When the color patch is implemented in piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
+- [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in Piko based on my previous method](https://github.com/crimera/piko/pull/430). Thank you so much!
+- Also therealswak/Swakshan, co-Founder of Piko, [was positive about implementing the color patch into Piko](https://t.me/pikopatches/1/17092). So [I opened a issue](https://github.com/crimera/piko/issues/431) and shared what I've done for developers in this README.
+- When the color patch is implemented in Piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
 
 ## About this
-Mod app with 10 theme colors for piko-Twitter<br>
+Piko-Twitter Mod with 10 theme colors<br>
 
 ### Important Section
 **The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
 
-This means that users can no longer choose between piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
-Currently, I use the prebuilt apk from crimera, but in the future I'll improve it to download from [apkmirror](https://www.apkmirror.com/apk/x-corp/twitter/), do AntiSplit process, and apply piko, just like the original repository.<br>
+This means that users can no longer choose between Piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
+Currently, I use the prebuilt apk from crimera, but in the future I'll improve it to download from [apkmirror](https://www.apkmirror.com/apk/x-corp/twitter/), do AntiSplit process, and apply Piko, just like the original repository.<br>
 
 
 (To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
@@ -102,18 +102,19 @@ At 4, the color of notification column is treated to be linked to the theme. Als
 </details>
 </details>
 
+<!-- 
 ## Past Section(Documentation before 2025-02-20)
 <details>
 Currently (2024/12/14), it can be patched successfully within [Revanced Extended Builder](https://github.com/inotia00/rvx-builder).
-<!-- 
+
 Please patch it yourself to use [Revancify](https://github.com/decipher3114/Revancify).<br>
 I don't recommend [Revanced Manager](https://github.com/ReVanced/revanced-manager) because it has an error when apk signing.<br>
 Currently (2024/10/22), it can be patched successfully by using the latest dev version in [Revanced Extended Manager](https://github.com/inotia00/revanced-manager).<br>
--->
 
 LSPatch※ may inject [Hachidori](https://github.com/Xposed-Modules-Repo/com.twifucker.hachidori) with non-root devices(but not recommended).<br>
 ※At 1st, I had written [JingMatrix repository](https://github.com/JingMatrix/LSPatch), but after verification it was not possible, so I'm taking it down.<br>
 I'm currently looking for a patchable LSPatch.<br>
+-->
 
 ### Using Tools
 ・[AntiSplit-M](https://github.com/AbdurazaaqMohammed/AntiSplit-M) convert [apkmirror's apkm](https://www.apkmirror.com/apk/x-corp/twitter/) to apk<br>
@@ -126,8 +127,8 @@ I'm currently looking for a patchable LSPatch.<br>
 ## Credits
 I continue to be grateful to them🙇🏻<br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
-・[crimera](https://github.com/crimera)：Currently I'm coloring his apk. Without his Revanced, Origin would not have continued.<br>
-・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to change smali color value. And Swakshan is Co-Founder of piko<br>
+・[crimera](https://github.com/crimera)：The Founder pf Piko. Currently I'm coloring his apk. Without his Revanced, Origin would not have continued<br>
+・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to change smali color value. And Swakshan is Co-Founder of Piko<br>
 ・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM). It is my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
-・And Another One Person...<br>
+・And Another One Painter...<br>
