@@ -7,7 +7,7 @@ My Personal Twitter-mod Build for Colorful Lovers. based on [piko](https://githu
 
 ## Note
 - [kitadai31](https://github.com/kitadai31) [implemented a language conversion patch in piko based on my previous method](https://github.com/crimera/piko/pull/430). Thank you so much!
-- Also therealswak/Swakshan, main developer of [piko patch](https://github.com/crimera/piko), [was positive about implementing the color patch into piko](https://t.me/pikopatches/1/17092). So [I opened a issue](https://github.com/crimera/piko/issues/431) and shared what I've done for developers in this README.
+- Also therealswak/Swakshan, co-Founder of Piko, [was positive about implementing the color patch into piko](https://t.me/pikopatches/1/17092). So [I opened a issue](https://github.com/crimera/piko/issues/431) and shared what I've done for developers in this README.
 - When the color patch is implemented in piko, this repository will be completely finished its role(i.e., it will become a public archive and will no longer be updated).
 
 ## About this
@@ -23,7 +23,7 @@ Currently, I use the prebuilt apk from crimera, but in the future I'll improve i
 (To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
 
 ## Changes from original crimera's apk
-- You can choose their favorite color from 10 color themes<br>
+- You can choose your favorite from 10 colors themes<br>
 ・All signatures are the same, so colors can be easily changed by re-installing the app (since v10.80.1)<br>
 ・Origin Blue appears to have no significant change over the original, but minor color adjustments have been made<br>
 
