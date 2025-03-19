@@ -1,8 +1,6 @@
 name: Auto Patch & Release APK
 
 on:
-  schedule:
-    - cron: "16 2 * * *"
   workflow_dispatch:
 
 jobs:
