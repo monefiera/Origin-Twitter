@@ -146,25 +146,29 @@ def hex_to_smali(hex_color):
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
-    """Replace `-0xe2641000000000L` with the new value for all decompiled `.smali` files"""
-    smali_color = hex_to_smali(color) + "00000000L"  
-    
-    pattern = re.compile(r"-0xe2641000000000L", re.IGNORECASE)
-    
+    """Replace smali color constants with the new color"""
+    smali_color = hex_to_smali(color) + "00000000L"
+
+    patterns = {
+        re.compile(r"-0xe2641000000000L", re.IGNORECASE): smali_color, 
+        re.compile(r"-0xff[0-9a-fA-F]{6}L", re.IGNORECASE): f"-0xff{color}L",  
+    }
+
     print(f"Scanning all .smali files under: {decompiled_path}")
     for root, _, files in os.walk(decompiled_path):  
         for file in files:
             if file.endswith(".smali"): 
                 smali_path = os.path.join(root, file)
-                print(f"Processing: {smali_path}")
                 with open(smali_path, "r", encoding="utf-8") as f:
                     content = f.read()
-                
-                new_content = pattern.sub(smali_color, content)
 
-                if new_content != content:  
+                original_content = content
+                for pattern, replacement in patterns.items():
+                    content = pattern.sub(replacement, content)
+
+                if content != original_content:
                     with open(smali_path, "w", encoding="utf-8") as f:
-                        f.write(new_content)
+                        f.write(content)
                     print(f"Modified: {smali_path}")
                     
 # 7. APK rebuild and sign
