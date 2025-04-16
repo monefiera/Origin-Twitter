@@ -151,7 +151,7 @@ def modify_smali(decompiled_path, color):
 
     patterns = {
         re.compile(r"-0xe2641000000000L", re.IGNORECASE): smali_color, 
-        re.compile(r"-0xff[0-9a-fA-F]{6}L", re.IGNORECASE): f"-0xff{color}L",  
+        re.compile(r"-0xff1d9bf0L", re.IGNORECASE): f"-0xff{color}L",  
     }
 
     print(f"Scanning all .smali files under: {decompiled_path}")
