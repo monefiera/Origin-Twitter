@@ -185,7 +185,7 @@ def sign_apk(apk_path, original_apk_path=None):
     if original_apk_path:
         restore_libs(original_apk_path, apk_path)
 
-    optimize_resources_arsc(apk_path)
+    # optimize_resources_arsc(apk_path)
     align_resources_arsc(apk_path)
 
     apksigner = get_apksigner_path()
@@ -215,7 +215,7 @@ def patch_apk(apk_path):
         modify_colors(decompiled_path, color)
         modify_smali(decompiled_path, color)
         recompile_apk(decompiled_path, patched_apk)
-        restore_libs(apk_path, patched_apk)
+        # restore_libs(apk_path, patched_apk)
         sign_apk(patched_apk, original_apk_path=apk_path)
         print(f"✅ Generated: {patched_apk}")
 
