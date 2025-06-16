@@ -105,8 +105,8 @@ def modify_colors(decompiled_path, color):
     tree.write(colors_path, encoding="utf-8", xml_declaration=True)
 
 def hex_to_smali(hex_color):
-    int_color = int(hex_color, 16)  
-    smali_int = (int_color ^ 0xFFFFFF) + 1  
+    int_color = int(hex_color, 16)
+    smali_int = (int_color ^ 0xFFFFFF) + 1
     smali_value = f"-0x{smali_int:06x}"
     return smali_value.lower()
 
@@ -160,45 +160,44 @@ def align_resources_arsc(apk_path):
     subprocess.run([zipalign_path, "-v", "4", apk_path, aligned_apk], check=True)
     shutil.move(aligned_apk, apk_path)
 
+def restore_libs(original_apk_path, rebuilt_apk_path):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with zipfile.ZipFile(original_apk_path, 'r') as orig_zip:
+            lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
+            orig_zip.extractall(temp_dir, lib_files)
+
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_zip_file:
+            with zipfile.ZipFile(rebuilt_apk_path, 'r') as rebuilt_zip, \
+                 zipfile.ZipFile(tmp_zip_file.name, 'w') as new_zip:
+                for item in rebuilt_zip.infolist():
+                    if not item.filename.startswith("lib/"):
+                        new_zip.writestr(item, rebuilt_zip.read(item.filename))
+                for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
+                    for file in files:
+                        full_path = os.path.join(root, file)
+                        arcname = os.path.relpath(full_path, temp_dir)
+                        new_zip.write(full_path, arcname, compress_type=zipfile.ZIP_STORED)
+
+        shutil.move(tmp_zip_file.name, rebuilt_apk_path)
+    print(f"✅ Restored .so libraries into: {rebuilt_apk_path}")
+
 def sign_apk(apk_path):
     optimize_resources_arsc(apk_path)
     align_resources_arsc(apk_path)
     apksigner = get_apksigner_path()
-    subprocess.run([apksigner, "sign", "--ks", KEYSTORE_PATH,
-                    "--ks-pass", f"pass:{STOREPASS}",
-                    "--ks-key-alias", ALIAS,
-                    "--key-pass", f"pass:{KEYPASS}",
-                    "--v1-signing-enabled", "true",
-                    "--v2-signing-enabled", "true",
-                    "--v3-signing-enabled", "true",
-                    "--v4-signing-enabled", "false",
-                    apk_path], check=True)
+    subprocess.run([
+        apksigner, "sign",
+        "--ks", KEYSTORE_PATH,
+        "--ks-pass", f"pass:{STOREPASS}",
+        "--ks-key-alias", ALIAS,
+        "--key-pass", f"pass:{KEYPASS}",
+        "--v1-signing-enabled", "true",
+        "--v2-signing-enabled", "true",
+        "--v3-signing-enabled", "true",
+        "--v4-signing-enabled", "false",
+        apk_path
+    ], check=True)
     subprocess.run([apksigner, "verify", "--print-certs", apk_path], check=True)
-
-def restore_libs(original_apk_path, rebuilt_apk_path):
-    import tempfile
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(original_apk_path, 'r') as zip_ref:
-            lib_files = [f for f in zip_ref.namelist() if f.startswith("lib/") and f.endswith(".so")]
-            zip_ref.extractall(temp_dir, lib_files)
-
-        with zipfile.ZipFile(rebuilt_apk_path, 'r') as zip_read:
-            entries = [item for item in zip_read.infolist() if not item.filename.startswith("lib/")]
-            with zipfile.ZipFile(rebuilt_apk_path + ".tmp", 'w') as zip_write:
-                for item in entries:
-                    zip_write.writestr(item, zip_read.read(item.filename))
-
-        shutil.move(rebuilt_apk_path + ".tmp", rebuilt_apk_path)
-
-        with zipfile.ZipFile(rebuilt_apk_path, 'a') as zip_write:
-            for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
-                for file in files:
-                    full_path = os.path.join(root, file)
-                    relative_path = os.path.relpath(full_path, temp_dir)
-                    zip_write.write(full_path, relative_path, compress_type=zipfile.ZIP_STORED)
-
-    print(f"✅ Cleaned and restored native libraries into: {rebuilt_apk_path}")
 
 def patch_apk(apk_path):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
