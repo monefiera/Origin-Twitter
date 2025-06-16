@@ -56,11 +56,14 @@ def decompile_apk(input_apk, output_dir):
 def recompile_apk(input_dir, output_apk):
     subprocess.run([APK_TOOL, "b", input_dir, "-o", output_apk], check=True)
 
-def restore_native_libs(original_apk, modified_apk):
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(original_apk) as orig_zip:
-            lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
-            orig_zip.extractall(temp_dir, lib_files)
+def restore_native_libs(original_apk, target_decompiled_dir):
+    with zipfile.ZipFile(original_apk) as orig_zip:
+        lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
+        for lib_file in lib_files:
+            target_path = os.path.join(target_decompiled_dir, lib_file)
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            with open(target_path, "wb") as out_f:
+                out_f.write(orig_zip.read(lib_file))
         
         with tempfile.NamedTemporaryFile(delete=False) as temp_out:
             with zipfile.ZipFile(modified_apk) as rebuilt_zip, \
@@ -190,8 +193,8 @@ def patch_apk(original_apk):
         modify_styles(decompiled_dir)
         modify_colors(decompiled_dir, hex_color)
         modify_smali(decompiled_dir, hex_color)
+        restore_native_libs(original_apk, decompiled_dir)
         recompile_apk(decompiled_dir, output_apk)
-        restore_native_libs(original_apk, output_apk)
         align_apk(output_apk)
         sign_apk(output_apk)
         print(f"✅ Patched: {output_apk}")
