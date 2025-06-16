@@ -176,7 +176,7 @@ def restore_libs(original_apk_path, rebuilt_apk_path):
                     for file in files:
                         full_path = os.path.join(root, file)
                         arcname = os.path.relpath(full_path, temp_dir)
-                        new_zip.write(full_path, arcname, compress_type=zipfile.ZIP_STORED)
+                        new_zip.write(full_path, arcname, compress_type=zipfile.ZIP_DEFLATED)
 
         shutil.move(tmp_zip_file.name, rebuilt_apk_path)
     print(f"✅ Restored .so libraries into: {rebuilt_apk_path}")
