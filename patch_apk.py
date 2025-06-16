@@ -176,24 +176,30 @@ def sign_apk(apk_path):
     subprocess.run([apksigner, "verify", "--print-certs", apk_path], check=True)
 
 def restore_libs(original_apk_path, rebuilt_apk_path):
+    import tempfile
+
     with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(original_apk_path, 'r') as zin:
-            for file in zin.namelist():
-                if file.startswith("lib/") and file.endswith(".so"):
-                    zin.extract(file, temp_dir)
-        temp_apk = rebuilt_apk_path + ".temp"
-        with zipfile.ZipFile(rebuilt_apk_path, 'r') as zin, zipfile.ZipFile(temp_apk, 'w') as zout:
-            for item in zin.infolist():
-                if not (item.filename.startswith("lib/") and item.filename.endswith(".so")):
-                    zout.writestr(item, zin.read(item.filename))
-        shutil.move(temp_apk, rebuilt_apk_path)
-        with zipfile.ZipFile(rebuilt_apk_path, 'a') as zout:
+        
+        with zipfile.ZipFile(original_apk_path, 'r') as zip_ref:
+            lib_files = [f for f in zip_ref.namelist() if f.startswith("lib/") and f.endswith(".so")]
+            zip_ref.extractall(temp_dir, lib_files)
+
+        with zipfile.ZipFile(rebuilt_apk_path, 'r') as zip_read:
+            entries = [item for item in zip_read.infolist() if not item.filename.startswith("lib/")]
+            with zipfile.ZipFile(rebuilt_apk_path + ".tmp", 'w') as zip_write:
+                for item in entries:
+                    zip_write.writestr(item, zip_read.read(item.filename))
+
+        shutil.move(rebuilt_apk_path + ".tmp", rebuilt_apk_path)
+        
+        with zipfile.ZipFile(rebuilt_apk_path, 'a') as zip_write:
             for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
                 for file in files:
                     full_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(full_path, temp_dir)
-                    zout.write(full_path, rel_path)
-    print(f"✅ Restored native libraries into: {rebuilt_apk_path} (without duplication)")
+                    relative_path = os.path.relpath(full_path, temp_dir)
+                    zip_write.write(full_path, relative_path)
+
+    print(f"✅ Cleaned and restored native libraries into: {rebuilt_apk_path}")
 
 def patch_apk(apk_path):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
