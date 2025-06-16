@@ -181,9 +181,13 @@ def restore_libs(original_apk_path, rebuilt_apk_path):
         shutil.move(tmp_zip_file.name, rebuilt_apk_path)
     print(f"✅ Restored .so libraries into: {rebuilt_apk_path}")
 
-def sign_apk(apk_path):
+def sign_apk(apk_path, original_apk_path=None):
+    if original_apk_path:
+        restore_libs(original_apk_path, apk_path)
+
     optimize_resources_arsc(apk_path)
     align_resources_arsc(apk_path)
+
     apksigner = get_apksigner_path()
     subprocess.run([
         apksigner, "sign",
@@ -212,7 +216,7 @@ def patch_apk(apk_path):
         modify_smali(decompiled_path, color)
         recompile_apk(decompiled_path, patched_apk)
         restore_libs(apk_path, patched_apk)
-        sign_apk(patched_apk)
+        sign_apk(patched_apk, original_apk_path=apk_path)
         print(f"✅ Generated: {patched_apk}")
 
 if __name__ == "__main__":
