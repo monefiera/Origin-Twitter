@@ -69,7 +69,7 @@ jobs:
           wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O apktool
           chmod +x apktool
           sudo mv apktool /usr/local/bin/
-          wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.11.0.jar -O apktool.jar
+          wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.11.1.jar -O apktool.jar
           sudo mv apktool.jar /usr/local/bin/
 
       - name: Create downloads directory if not exists
