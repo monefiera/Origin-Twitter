@@ -179,7 +179,6 @@ def restore_libs(original_apk_path, rebuilt_apk_path):
     import tempfile
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        
         with zipfile.ZipFile(original_apk_path, 'r') as zip_ref:
             lib_files = [f for f in zip_ref.namelist() if f.startswith("lib/") and f.endswith(".so")]
             zip_ref.extractall(temp_dir, lib_files)
@@ -191,13 +190,13 @@ def restore_libs(original_apk_path, rebuilt_apk_path):
                     zip_write.writestr(item, zip_read.read(item.filename))
 
         shutil.move(rebuilt_apk_path + ".tmp", rebuilt_apk_path)
-        
+
         with zipfile.ZipFile(rebuilt_apk_path, 'a') as zip_write:
             for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
                 for file in files:
                     full_path = os.path.join(root, file)
                     relative_path = os.path.relpath(full_path, temp_dir)
-                    zip_write.write(full_path, relative_path)
+                    zip_write.write(full_path, relative_path, compress_type=zipfile.ZIP_STORED)
 
     print(f"✅ Cleaned and restored native libraries into: {rebuilt_apk_path}")
 
