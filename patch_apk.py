@@ -265,6 +265,25 @@ def sign_apk(apk_path):
 
     return apk_path
 
+# Addition: Function to reinsert lib from original APK
+def restore_libs(original_apk_path, rebuilt_apk_path):
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with zipfile.ZipFile(original_apk_path, 'r') as zip_ref:
+            for file in zip_ref.namelist():
+                if file.startswith("lib/") and file.endswith(".so"):
+                    zip_ref.extract(file, temp_dir)
+
+        with zipfile.ZipFile(rebuilt_apk_path, 'a') as zip_write:
+            for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
+                for file in files:
+                    full_path = os.path.join(root, file)
+                    relative_path = os.path.relpath(full_path, temp_dir)
+                    zip_write.write(full_path, relative_path)
+
+    print(f"✅ Restored native libraries into: {rebuilt_apk_path}")
+
 
 # 8. Execution of all processes
 def patch_apk(apk_path):
@@ -273,7 +292,7 @@ def patch_apk(apk_path):
 
     for color, name in THEME_COLORS.items():
         decompiled_path = f"{apk_path}_decompiled_{color}"
-        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")  # バージョン番号を追加
+        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")
         
         decompile_apk(apk_path, decompiled_path)
         modify_xml(decompiled_path)
@@ -281,8 +300,10 @@ def patch_apk(apk_path):
         modify_colors(decompiled_path, color)
         modify_smali(decompiled_path, color)
         recompile_apk(decompiled_path, patched_apk)
+        restore_libs(apk_path, patched_apk)  # ★追加：libディレクトリを復元
         sign_apk(patched_apk)
-        print(f"Generated: {patched_apk}")
+        print(f"✅ Generated: {patched_apk}")
+
 
 # Extra
 if __name__ == "__main__":
