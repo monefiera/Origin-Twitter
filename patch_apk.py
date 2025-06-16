@@ -57,26 +57,17 @@ def recompile_apk(input_dir, output_apk):
     subprocess.run([APK_TOOL, "b", input_dir, "-o", output_apk], check=True)
 
 def restore_native_libs(original_apk, target_decompiled_dir):
-    with zipfile.ZipFile(original_apk) as orig_zip:
-        lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
+    with zipfile.ZipFile(original_apk, 'r') as zip_ref:
+        lib_files = [f for f in zip_ref.namelist() if f.startswith("lib/") and f.endswith(".so")]
+        if not lib_files:
+            print("No native libraries found in the original APK.")
+            return
         for lib_file in lib_files:
             target_path = os.path.join(target_decompiled_dir, lib_file)
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
-            with open(target_path, "wb") as out_f:
-                out_f.write(orig_zip.read(lib_file))
-        
-        with tempfile.NamedTemporaryFile(delete=False) as temp_out:
-            with zipfile.ZipFile(modified_apk) as rebuilt_zip, \
-                 zipfile.ZipFile(temp_out.name, "w") as final_zip:
-                for item in rebuilt_zip.infolist():
-                    if not item.filename.startswith("lib/"):
-                        final_zip.writestr(item, rebuilt_zip.read(item.filename))
-                for root, _, files in os.walk(os.path.join(temp_dir, "lib")):
-                    for file in files:
-                        full_path = os.path.join(root, file)
-                        arcname = os.path.relpath(full_path, temp_dir)
-                        final_zip.write(full_path, arcname)
-        shutil.move(temp_out.name, modified_apk)
+            with open(target_path, 'wb') as out_file:
+                out_file.write(zip_ref.read(lib_file))
+            print(f"Restored native library: {lib_file}")
 
 def align_apk(apk_file):
     zipalign = get_sdk_tool("zipalign")
