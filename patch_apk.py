@@ -1,17 +1,17 @@
+#!/usr/bin/env python3
 import os
 import subprocess
 import xml.etree.ElementTree as ET
 import re
-import glob
 import shutil
 import yaml
 import zipfile
-
 
 APK_TOOL = "apktool"
 OUTPUT_DIR = "patched_apks"
 APK_VERSION = None 
 AAPT2 = "aapt2"
+USE_AAPT2_OPTIMIZE = False   
 KEYSTORE_PATH = "./origin-twitter.keystore"
 ALIAS = "origin"
 STOREPASS = "123456789"
@@ -30,13 +30,12 @@ THEME_COLORS = {
     "ffadc0": "MateChan"
 }
 
-# 1. GitHub release version (using the VERSION environment variable obtained from GitHub)
+# 1. Get GitHub release version
 apk_version = os.getenv('CRIMERA_TAG')  
 apk_file_name = f"twitter-piko-v{apk_version}.apk" 
 apk_path = f"downloads/{apk_file_name}"  
-decompiled_path = f"downloads/{apk_file_name}_decompiled" 
 
-print(f"APK Path: {apk_path}")  
+print(f"APK Path: {apk_path}")
 
 def decompile_apk(apk_path, output_path):
     print(f"Checking if APK file exists: {apk_path}")
@@ -45,23 +44,32 @@ def decompile_apk(apk_path, output_path):
     
     subprocess.run([APK_TOOL, "d", apk_path, "-o", output_path, "--force"], check=True)
 
-def patch_apk(apk_path):
-    
-    print(f"Decompiling APK: {apk_path}")
-    decompile_apk(apk_path, decompiled_path)
+def update_apktool_yml(decompiled_path):
+    yml_path = os.path.join(decompiled_path, "apktool.yml")
+    if os.path.exists(yml_path):
+        print(f"Updating doNotCompress in {yml_path}")
+        with open(yml_path, "r", encoding="utf-8") as f:
+            yml_data = yaml.safe_load(f)
+        doNotCompress = yml_data.get("doNotCompress", [])
+        if ".so" not in doNotCompress:
+            doNotCompress.append(".so")
+        yml_data["doNotCompress"] = doNotCompress
+        with open(yml_path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(yml_data, f)
+    else:
+        print(f"{yml_path} not found. Skipping update for doNotCompress.")
 
-# 2. Get version number
+# 2. Extract version number from APK file name
 def get_apk_version(apk_path):
     global APK_VERSION
-    
-    match = re.search(r"twitter-piko-v(\d+\.\d+\.\d+)-release.0.apk", apk_path)
+    match = re.search(r"twitter-piko-v(\d+\.\d+\.\d+)", apk_path)
     if match:
         APK_VERSION = match.group(1)
     else:
         APK_VERSION = "unknown"
     print(f"Detected APK Version: {APK_VERSION}")
 
-# 3. Change XML
+# 3. Change XML files
 def modify_xml(decompiled_path):
     xml_files = [
         "res/layout/ocf_twitter_logo.xml",
@@ -82,7 +90,7 @@ def modify_xml(decompiled_path):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
-# 4. Modding styles.xml
+# 4. Modify styles.xml
 def modify_styles(decompiled_path):
     styles_path = os.path.join(decompiled_path, "res/values/styles.xml")
     if not os.path.exists(styles_path):
@@ -110,7 +118,7 @@ def modify_styles(decompiled_path):
 
     tree.write(styles_path, encoding="utf-8", xml_declaration=True)
 
-# 5. Modding colors.xml
+# 5. Modify colors.xml
 def modify_colors(decompiled_path, color):
     colors_path = os.path.join(decompiled_path, "res/values/colors.xml")
     if not os.path.exists(colors_path):
@@ -135,82 +143,66 @@ def modify_colors(decompiled_path, color):
     
     tree.write(colors_path, encoding="utf-8", xml_declaration=True)
 
-# 6. Modding smali files
+# 6. Change smali files
 def hex_to_smali(hex_color):
-    """Convert hex color code (RRGGBB) to smali negative hex notation (-0xXXXXXX000000000000L)"""
-    int_color = int(hex_color, 16)  
-    
-    smali_int = (int_color ^ 0xFFFFFF) + 1  
-    
+    """Convert RRGGBB hexadecimal color codes to negative hexadecimal representation in smali"""
+    int_color = int(hex_color, 16)
+    smali_int = (int_color ^ 0xFFFFFF) + 1
     smali_value = f"-0x{smali_int:06x}"
     return smali_value.lower()
 
 def modify_smali(decompiled_path, color):
-    """Replace smali color constants with the new color"""
     smali_color = hex_to_smali(color) + "00000000L"
-
     patterns = {
         re.compile(r"-0xe2641000000000L", re.IGNORECASE): smali_color, 
         re.compile(r"0xff1d9bf0L", re.IGNORECASE): f"0xff{color}L",  
     }
-
     print(f"Scanning all .smali files under: {decompiled_path}")
-    for root, _, files in os.walk(decompiled_path):  
+    for root_dir, _, files in os.walk(decompiled_path):
         for file in files:
-            if file.endswith(".smali"): 
-                smali_path = os.path.join(root, file)
+            if file.endswith(".smali"):
+                smali_path = os.path.join(root_dir, file)
                 with open(smali_path, "r", encoding="utf-8") as f:
                     content = f.read()
-
                 original_content = content
                 for pattern, replacement in patterns.items():
                     content = pattern.sub(replacement, content)
-
                 if content != original_content:
                     with open(smali_path, "w", encoding="utf-8") as f:
                         f.write(content)
                     print(f"Modified: {smali_path}")
-                    
-# 7. APK rebuild and sign
 
+# 7. APK rebuilding and signing process
 def get_zipalign_path():
     android_home = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     if not android_home:
         raise FileNotFoundError("ANDROID_HOME or ANDROID_SDK_ROOT is not set.")
-
     build_tools_dir = os.path.join(android_home, "build-tools")
     versions = sorted(os.listdir(build_tools_dir), reverse=True)
-
     for version in versions:
         zipalign_path = os.path.join(build_tools_dir, version, "zipalign")
         if os.path.exists(zipalign_path):
             return zipalign_path
-
     raise FileNotFoundError("zipalign was not found.")
 
 def get_apksigner_path():
     android_home = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     if not android_home:
         raise FileNotFoundError("ANDROID_HOME or ANDROID_SDK_ROOT is not set.")
-
     build_tools_dir = os.path.join(android_home, "build-tools")
     versions = sorted(os.listdir(build_tools_dir), reverse=True)
-
     for version in versions:
         apksigner_path = os.path.join(build_tools_dir, version, "apksigner")
         if os.path.exists(apksigner_path):
             return apksigner_path
-
     raise FileNotFoundError("apksigner was not found")
 
 def recompile_apk(decompiled_path, output_apk):
-    """Rebuild APK"""
     subprocess.run([APK_TOOL, "b", decompiled_path, "-o", output_apk], check=True)
 
 def optimize_resources_arsc(apk_path):
-    """Properly compress resources.arsc and place it on a 4-byte boundary"""
+    """Resource optimization processing"""
     optimized_apk = apk_path + ".optimized"
-
     subprocess.run([
         AAPT2, "optimize",
         "--shorten-resource-paths",
@@ -219,33 +211,22 @@ def optimize_resources_arsc(apk_path):
         apk_path,
         "-o", optimized_apk
     ], check=True)
-
-    
     shutil.move(optimized_apk, apk_path)
     print(f"✅ Optimized resources.arsc: {apk_path}")
 
 def align_resources_arsc(apk_path):
-    """c"""
     zipalign_path = get_zipalign_path()
     aligned_apk = apk_path + ".aligned"
-
-    
     subprocess.run([zipalign_path, "-v", "4", apk_path, aligned_apk], check=True)
-    
-    
     shutil.move(aligned_apk, apk_path)
     print(f"✅ resources.arsc is now placed on a 4-byte boundary: {apk_path}")
 
 def sign_apk(apk_path):
-    """V1, V2, V3 sign and zipalign APK"""
     zipalign_path = get_zipalign_path()
     apksigner_path = get_apksigner_path()
-
-    
-    optimize_resources_arsc(apk_path)
+    if USE_AAPT2_OPTIMIZE:
+        optimize_resources_arsc(apk_path)
     align_resources_arsc(apk_path)
-
-    # V1, V2, V3 sign (apksigner)
     subprocess.run([
         apksigner_path,
         "sign",
@@ -259,23 +240,20 @@ def sign_apk(apk_path):
         "--v4-signing-enabled", "false",
         apk_path
     ], check=True)
-
-    # Signature Verification
     subprocess.run([apksigner_path, "verify", "--print-certs", apk_path], check=True)
-
     return apk_path
 
-
-# 8. Execution of all processes
+# 8. Processing execution for any themes
 def patch_apk(apk_path):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     get_apk_version(apk_path)
-
     for color, name in THEME_COLORS.items():
         decompiled_path = f"{apk_path}_decompiled_{color}"
-        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")  # バージョン番号を追加
+        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")
         
+        print(f"\nProcessing theme color {color} ({name})")
         decompile_apk(apk_path, decompiled_path)
+        update_apktool_yml(decompiled_path) 
         modify_xml(decompiled_path)
         modify_styles(decompiled_path)
         modify_colors(decompiled_path, color)
@@ -284,7 +262,6 @@ def patch_apk(apk_path):
         sign_apk(patched_apk)
         print(f"Generated: {patched_apk}")
 
-# Extra
 if __name__ == "__main__":
     print(f"Detected APK Version: {apk_version}")
     patch_apk(apk_path)
