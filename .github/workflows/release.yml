@@ -72,6 +72,14 @@ jobs:
           wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.11.1.jar -O apktool.jar
           sudo mv apktool.jar /usr/local/bin/
 
+      - name: Print tool versions
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          echo "apktool version:"
+          apktool -version
+          echo "aapt2 version:"
+          aapt2 version
+
       - name: Create downloads directory if not exists
         if: ${{ env.SKIP == 'false' }}
         run: mkdir -p downloads
