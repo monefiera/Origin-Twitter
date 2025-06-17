@@ -56,21 +56,30 @@ def recompile_apk(input_dir, output_apk):
     subprocess.run([APK_TOOL, "b", input_dir, "-o", output_apk], check=True)
 
 def inject_native_libs_to_apk(apk_path, original_apk):
-    temp_apk = apk_path.replace(".apk", "_fixed.apk")
-    shutil.copy(apk_path, temp_apk)
+    temp_dir = tempfile.mkdtemp()
+    fixed_apk = apk_path.replace(".apk", "_fixed.apk")
+
+    with zipfile.ZipFile(apk_path, 'r') as zip_ref:
+        zip_ref.extractall(temp_dir)
 
     with zipfile.ZipFile(original_apk, 'r') as orig_zip:
         lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
-        if not lib_files:
-            print("⚠️  native libraries is not found!!")
-            return apk_path
+        for lib in lib_files:
+            dest_path = os.path.join(temp_dir, lib)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            with open(dest_path, 'wb') as f:
+                f.write(orig_zip.read(lib))
+            print(f"📦 Copied native lib: {lib}")
 
-        with zipfile.ZipFile(temp_apk, 'a', zipfile.ZIP_STORED) as mod_zip:
-            for lib in lib_files:
-                mod_zip.writestr(lib, orig_zip.read(lib))
-                print(f"📦 Injected native lib: {lib}")
+    with zipfile.ZipFile(fixed_apk, 'w', zipfile.ZIP_DEFLATED) as new_zip:
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arc_name = os.path.relpath(file_path, temp_dir)
+                new_zip.write(file_path, arc_name)
 
-    return temp_apk
+    shutil.rmtree(temp_dir)
+    return fixed_apk
 
 def align_apk(apk_file):
     zipalign = get_sdk_tool("zipalign")
