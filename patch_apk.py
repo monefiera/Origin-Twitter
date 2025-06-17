@@ -8,7 +8,6 @@ import zipfile
 
 # ====== Settings ======
 APK_TOOL = "apktool"
-AAPT2 = "aapt2"
 KEYSTORE_PATH = "./origin-twitter.keystore"
 ALIAS = "origin"
 STOREPASS = "123456789"
@@ -33,7 +32,7 @@ apk_file_name = f"twitter-piko-v{apk_version_env}.apk"
 apk_path = f"downloads/{apk_file_name}"
 
 
-# ====== Utirity ======
+# ====== Utility ======
 
 def get_sdk_tool(tool_name):
     sdk_path = os.getenv("ANDROID_HOME") or os.getenv("ANDROID_SDK_ROOT")
@@ -48,7 +47,7 @@ def extract_apk_version(apk_name):
     return match.group(1) if match else "unknown"
 
 
-# ====== APK modding ======
+# ====== APK Handling ======
 
 def decompile_apk(input_apk, output_dir):
     subprocess.run([APK_TOOL, "d", input_apk, "-o", output_dir, "--force"], check=True)
@@ -56,18 +55,25 @@ def decompile_apk(input_apk, output_dir):
 def recompile_apk(input_dir, output_apk):
     subprocess.run([APK_TOOL, "b", input_dir, "-o", output_apk], check=True)
 
-def restore_native_libs(original_apk, target_decompiled_dir):
-    with zipfile.ZipFile(original_apk, 'r') as zip_ref:
-        lib_files = [f for f in zip_ref.namelist() if f.startswith("lib/") and f.endswith(".so")]
-        if not lib_files:
-            print("No native libraries found in the original APK.")
-            return
-        for lib_file in lib_files:
-            target_path = os.path.join(target_decompiled_dir, lib_file)
-            os.makedirs(os.path.dirname(target_path), exist_ok=True)
-            with open(target_path, 'wb') as out_file:
-                out_file.write(zip_ref.read(lib_file))
-            print(f"Restored native library: {lib_file}")
+def inject_native_libs_to_apk(apk_path, original_apk):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with zipfile.ZipFile(apk_path, 'r') as zip_ref:
+            zip_ref.extractall(tmpdir)
+
+        # Extract lib files from original APK
+        with zipfile.ZipFile(original_apk, 'r') as orig_zip:
+            for file in orig_zip.namelist():
+                if file.startswith("lib/") and file.endswith(".so"):
+                    target_path = os.path.join(tmpdir, file)
+                    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                    with open(target_path, "wb") as f:
+                        f.write(orig_zip.read(file))
+
+        # Repack ZIP as APK
+        fixed_apk = apk_path.replace(".apk", "_fixed.apk")
+        shutil.make_archive(fixed_apk.replace(".apk", ""), 'zip', tmpdir)
+        shutil.move(fixed_apk.replace(".apk", "") + ".zip", fixed_apk)
+        return fixed_apk
 
 def align_apk(apk_file):
     zipalign = get_sdk_tool("zipalign")
@@ -91,22 +97,22 @@ def sign_apk(apk_file):
     ], check=True)
 
 
-# ====== extra modding ======
+# ====== Modding Functions ======
 
 def modify_xmls(base_path):
-    xml_targets = [
+    targets = [
         "res/layout/ocf_twitter_logo.xml",
         "res/layout/login_toolbar_seamful_custom_view.xml"
     ]
-    for rel_path in xml_targets:
-        file_path = os.path.join(base_path, rel_path)
-        if os.path.isfile(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
+    for rel in targets:
+        path = os.path.join(base_path, rel)
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
             content = content.replace("?dynamicColorGray1100", "@color/twitter_blue")
             content = content.replace("@color/gray_1100", "@color/twitter_blue")
             content = re.sub(r"#ff1d9bf0|#ff1da1f2", "@color/twitter_blue", content)
-            with open(file_path, "w", encoding="utf-8") as f:
+            with open(path, "w", encoding="utf-8") as f:
                 f.write(content)
 
 def modify_styles(base_path):
@@ -155,10 +161,10 @@ def modify_smali(base_path, color):
         re.compile(r"-0xe2641000000000L", re.IGNORECASE): f"-0x{((int(color, 16) ^ 0xFFFFFF)+1):06x}00000000L",
         re.compile(r"0xff1d9bf0L", re.IGNORECASE): f"0xff{color}L"
     }
-    for root, _, files in os.walk(base_path):
+    for root_dir, _, files in os.walk(base_path):
         for file in files:
             if file.endswith(".smali"):
-                path = os.path.join(root, file)
+                path = os.path.join(root_dir, file)
                 with open(path, "r", encoding="utf-8") as f:
                     content = f.read()
                 original = content
@@ -169,13 +175,14 @@ def modify_smali(base_path, color):
                         f.write(content)
 
 
-# ====== main patch ======
+# ====== Main Patching Logic ======
 
 def patch_apk(original_apk):
     version = extract_apk_version(original_apk)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     for hex_color, name in THEME_COLORS.items():
+        print(f"🖌️ Patching theme: {name}")
         decompiled_dir = f"{original_apk}_decompiled_{name}"
         output_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release.0.apk")
 
@@ -184,15 +191,15 @@ def patch_apk(original_apk):
         modify_styles(decompiled_dir)
         modify_colors(decompiled_dir, hex_color)
         modify_smali(decompiled_dir, hex_color)
-        restore_native_libs(original_apk, decompiled_dir)
         recompile_apk(decompiled_dir, output_apk)
-        align_apk(output_apk)
-        sign_apk(output_apk)
-        print(f"✅ Patched: {output_apk}")
+        fixed_apk = inject_native_libs_to_apk(output_apk, original_apk)
+        align_apk(fixed_apk)
+        sign_apk(fixed_apk)
+        print(f"✅ Patched: {fixed_apk}")
 
 
-# ====== active ======
+# ====== Entry Point ======
 
 if __name__ == "__main__":
-    print(f"🛠️  Processing APK: {apk_path}")
+    print(f"🔧 Processing APK: {apk_path}")
     patch_apk(apk_path)
