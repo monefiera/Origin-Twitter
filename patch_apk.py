@@ -5,7 +5,6 @@ import xml.etree.ElementTree as ET
 import re
 import shutil
 import yaml
-import zipfile
 
 APK_TOOL = "apktool"
 OUTPUT_DIR = "patched_apks"
@@ -30,7 +29,7 @@ THEME_COLORS = {
     "ffadc0": "MateChan"
 }
 
-# 1. Get GitHub release version
+# Obtaining the version from GitHub environment variables
 apk_version = os.getenv('CRIMERA_TAG')  
 apk_file_name = f"twitter-piko-v{apk_version}.apk" 
 apk_path = f"downloads/{apk_file_name}"  
@@ -41,17 +40,19 @@ def decompile_apk(apk_path, output_path):
     print(f"Checking if APK file exists: {apk_path}")
     if not os.path.exists(apk_path):
         raise FileNotFoundError(f"APK file not found: {apk_path}")
-    
     subprocess.run([APK_TOOL, "d", apk_path, "-o", output_path, "--force"], check=True)
 
 def update_apktool_yml(decompiled_path):
+    """
+    Update apktool.yml so that .so files are not recompressed
+    """
     yml_path = os.path.join(decompiled_path, "apktool.yml")
     if os.path.exists(yml_path):
         print(f"Updating doNotCompress in {yml_path}")
         with open(yml_path, "r", encoding="utf-8") as f:
             yml_data = yaml.safe_load(f)
         doNotCompress = yml_data.get("doNotCompress", [])
-        if ".so" not in doNotCompress:
+        if ".so" not in doNotCompress and "so" not in doNotCompress:
             doNotCompress.append(".so")
         yml_data["doNotCompress"] = doNotCompress
         with open(yml_path, "w", encoding="utf-8") as f:
@@ -59,7 +60,22 @@ def update_apktool_yml(decompiled_path):
     else:
         print(f"{yml_path} not found. Skipping update for doNotCompress.")
 
-# 2. Extract version number from APK file name
+def modify_manifest(decompiled_path):
+    """
+    Change the android:extractNativeLibs attribute of the <application> tag in AndroidManifest.xml to true
+    """
+    manifest_path = os.path.join(decompiled_path, "AndroidManifest.xml")
+    if not os.path.exists(manifest_path):
+        return
+    ET.register_namespace('android', 'http://schemas.android.com/apk/res/android')
+    tree = ET.parse(manifest_path)
+    root = tree.getroot()
+    application = root.find('application')
+    if application is not None:
+        application.set("{http://schemas.android.com/apk/res/android}extractNativeLibs", "true")
+        tree.write(manifest_path, encoding="utf-8", xml_declaration=True)
+        print("Modified AndroidManifest.xml: set android:extractNativeLibs to true")
+
 def get_apk_version(apk_path):
     global APK_VERSION
     match = re.search(r"twitter-piko-v(\d+\.\d+\.\d+)", apk_path)
@@ -69,36 +85,29 @@ def get_apk_version(apk_path):
         APK_VERSION = "unknown"
     print(f"Detected APK Version: {APK_VERSION}")
 
-# 3. Change XML files
 def modify_xml(decompiled_path):
     xml_files = [
         "res/layout/ocf_twitter_logo.xml",
         "res/layout/login_toolbar_seamful_custom_view.xml"
     ]
-    
     for xml_file in xml_files:
         file_path = os.path.join(decompiled_path, xml_file)
         if not os.path.exists(file_path):
             continue
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-        
         content = content.replace("?dynamicColorGray1100", "@color/twitter_blue")
         content = content.replace("@color/gray_1100", "@color/twitter_blue")
         content = re.sub(r"#ff1d9bf0|#ff1da1f2", "@color/twitter_blue", content)
-        
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
-# 4. Modify styles.xml
 def modify_styles(decompiled_path):
     styles_path = os.path.join(decompiled_path, "res/values/styles.xml")
     if not os.path.exists(styles_path):
         return
-    
     tree = ET.parse(styles_path)
     root = tree.getroot()
-    
     for style in root.findall("style"):
         name = style.get("name", "")
         if name in ["TwitterBase.Dim", "TwitterBase.LightsOut", "TwitterBase.Standard"]:
@@ -115,18 +124,14 @@ def modify_styles(decompiled_path):
             for item in style.findall("item"):
                 if item.get("name") == "windowSplashScreenBackground":
                     item.text = "@color/twitter_blue"
-
     tree.write(styles_path, encoding="utf-8", xml_declaration=True)
 
-# 5. Modify colors.xml
 def modify_colors(decompiled_path, color):
     colors_path = os.path.join(decompiled_path, "res/values/colors.xml")
     if not os.path.exists(colors_path):
         return
-    
     tree = ET.parse(colors_path)
     root = tree.getroot()
-    
     hex_color = f"#ff{color}"
     opacity_map = {
         "twitter_blue": hex_color,
@@ -135,17 +140,13 @@ def modify_colors(decompiled_path, color):
         "twitter_blue_opacity_50": f"#80{color}",
         "twitter_blue_opacity_58": f"#95{color}"
     }
-    
     for color_tag in root.findall("color"):
         name = color_tag.get("name", "")
         if name in opacity_map:
             color_tag.text = opacity_map[name]
-    
     tree.write(colors_path, encoding="utf-8", xml_declaration=True)
 
-# 6. Change smali files
 def hex_to_smali(hex_color):
-    """Convert RRGGBB hexadecimal color codes to negative hexadecimal representation in smali"""
     int_color = int(hex_color, 16)
     smali_int = (int_color ^ 0xFFFFFF) + 1
     smali_value = f"-0x{smali_int:06x}"
@@ -172,7 +173,6 @@ def modify_smali(decompiled_path, color):
                         f.write(content)
                     print(f"Modified: {smali_path}")
 
-# 7. APK rebuilding and signing process
 def get_zipalign_path():
     android_home = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     if not android_home:
@@ -201,7 +201,6 @@ def recompile_apk(decompiled_path, output_apk):
     subprocess.run([APK_TOOL, "b", decompiled_path, "-o", output_apk], check=True)
 
 def optimize_resources_arsc(apk_path):
-    """Resource optimization processing"""
     optimized_apk = apk_path + ".optimized"
     subprocess.run([
         AAPT2, "optimize",
@@ -243,17 +242,16 @@ def sign_apk(apk_path):
     subprocess.run([apksigner_path, "verify", "--print-certs", apk_path], check=True)
     return apk_path
 
-# 8. Processing execution for any themes
 def patch_apk(apk_path):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     get_apk_version(apk_path)
     for color, name in THEME_COLORS.items():
         decompiled_path = f"{apk_path}_decompiled_{color}"
         patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")
-        
         print(f"\nProcessing theme color {color} ({name})")
         decompile_apk(apk_path, decompiled_path)
-        update_apktool_yml(decompiled_path) 
+        update_apktool_yml(decompiled_path)  
+        modify_manifest(decompiled_path)     
         modify_xml(decompiled_path)
         modify_styles(decompiled_path)
         modify_colors(decompiled_path, color)
