@@ -31,7 +31,6 @@ apk_version_env = os.getenv('CRIMERA_TAG')
 apk_file_name = f"twitter-piko-v{apk_version_env}.apk"
 apk_path = f"downloads/{apk_file_name}"
 
-
 # ====== Utility ======
 
 def get_sdk_tool(tool_name):
@@ -45,7 +44,6 @@ def get_sdk_tool(tool_name):
 def extract_apk_version(apk_name):
     match = re.search(r"v(\d+\.\d+\.\d+)", apk_name)
     return match.group(1) if match else "unknown"
-
 
 # ====== APK Handling ======
 
@@ -64,19 +62,22 @@ def inject_native_libs_to_apk(apk_path, original_apk):
 
     with zipfile.ZipFile(original_apk, 'r') as orig_zip:
         lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
-        for lib in lib_files:
-            dest_path = os.path.join(temp_dir, lib)
-            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-            with open(dest_path, 'wb') as f:
-                f.write(orig_zip.read(lib))
-            print(f"📦 Copied native lib: {lib}")
+        if not lib_files:
+            print("⚠️ native libs not found!")
+        else:
+            for lib in lib_files:
+                lib_path = os.path.join(temp_dir, lib)
+                os.makedirs(os.path.dirname(lib_path), exist_ok=True)
+                with open(lib_path, 'wb') as f:
+                    f.write(orig_zip.read(lib))
+                print(f"📦 Copied lib: {lib}")
 
-    with zipfile.ZipFile(fixed_apk, 'w', zipfile.ZIP_DEFLATED) as new_zip:
+    with zipfile.ZipFile(fixed_apk, 'w', zipfile.ZIP_STORED) as new_zip:
         for root, _, files in os.walk(temp_dir):
             for file in files:
-                file_path = os.path.join(root, file)
-                arc_name = os.path.relpath(file_path, temp_dir)
-                new_zip.write(file_path, arc_name)
+                full_path = os.path.join(root, file)
+                rel_path = os.path.relpath(full_path, temp_dir)
+                new_zip.write(full_path, rel_path)
 
     shutil.rmtree(temp_dir)
     return fixed_apk
@@ -101,7 +102,6 @@ def sign_apk(apk_file):
         "--v4-signing-enabled", "false",
         apk_file
     ], check=True)
-
 
 # ====== Modding Functions ======
 
@@ -180,7 +180,6 @@ def modify_smali(base_path, color):
                     with open(path, "w", encoding="utf-8") as f:
                         f.write(content)
 
-
 # ====== Main Patching Logic ======
 
 def patch_apk(original_apk):
@@ -192,27 +191,19 @@ def patch_apk(original_apk):
         unsigned_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release-unsigned.apk")
         final_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release.0.apk")
 
-        # 1. Decompile & modify
         decompile_apk(original_apk, decompiled_dir)
         modify_xmls(decompiled_dir)
         modify_styles(decompiled_dir)
         modify_colors(decompiled_dir, hex_color)
         modify_smali(decompiled_dir, hex_color)
 
-        # 2. Rebuild APK
         recompile_apk(decompiled_dir, unsigned_apk)
-
-        # 3. Inject native libraries into rebuilt APK
         rebuilt_with_libs = inject_native_libs_to_apk(unsigned_apk, original_apk)
-
-        # 4. Align and sign
         align_apk(rebuilt_with_libs)
         sign_apk(rebuilt_with_libs)
 
-        # 5. Rename final output
         shutil.move(rebuilt_with_libs, final_apk)
         print(f"✅ Patched & signed APK: {final_apk}")
-
 
 # ====== Entry Point ======
 
