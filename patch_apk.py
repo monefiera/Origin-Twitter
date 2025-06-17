@@ -56,24 +56,21 @@ def recompile_apk(input_dir, output_apk):
     subprocess.run([APK_TOOL, "b", input_dir, "-o", output_apk], check=True)
 
 def inject_native_libs_to_apk(apk_path, original_apk):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with zipfile.ZipFile(apk_path, 'r') as zip_ref:
-            zip_ref.extractall(tmpdir)
+    temp_apk = apk_path.replace(".apk", "_fixed.apk")
+    shutil.copy(apk_path, temp_apk)
 
-        # Extract lib files from original APK
-        with zipfile.ZipFile(original_apk, 'r') as orig_zip:
-            for file in orig_zip.namelist():
-                if file.startswith("lib/") and file.endswith(".so"):
-                    target_path = os.path.join(tmpdir, file)
-                    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                    with open(target_path, "wb") as f:
-                        f.write(orig_zip.read(file))
+    with zipfile.ZipFile(original_apk, 'r') as orig_zip:
+        lib_files = [f for f in orig_zip.namelist() if f.startswith("lib/") and f.endswith(".so")]
+        if not lib_files:
+            print("⚠️  native libraries is not found!!")
+            return apk_path
 
-        # Repack ZIP as APK
-        fixed_apk = apk_path.replace(".apk", "_fixed.apk")
-        shutil.make_archive(fixed_apk.replace(".apk", ""), 'zip', tmpdir)
-        shutil.move(fixed_apk.replace(".apk", "") + ".zip", fixed_apk)
-        return fixed_apk
+        with zipfile.ZipFile(temp_apk, 'a', zipfile.ZIP_STORED) as mod_zip:
+            for lib in lib_files:
+                mod_zip.writestr(lib, orig_zip.read(lib))
+                print(f"📦 Injected native lib: {lib}")
+
+    return temp_apk
 
 def align_apk(apk_file):
     zipalign = get_sdk_tool("zipalign")
@@ -182,20 +179,30 @@ def patch_apk(original_apk):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     for hex_color, name in THEME_COLORS.items():
-        print(f"🖌️ Patching theme: {name}")
         decompiled_dir = f"{original_apk}_decompiled_{name}"
-        output_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release.0.apk")
+        unsigned_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release-unsigned.apk")
+        final_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{version}-release.0.apk")
 
+        # 1. Decompile & modify
         decompile_apk(original_apk, decompiled_dir)
         modify_xmls(decompiled_dir)
         modify_styles(decompiled_dir)
         modify_colors(decompiled_dir, hex_color)
         modify_smali(decompiled_dir, hex_color)
-        recompile_apk(decompiled_dir, output_apk)
-        fixed_apk = inject_native_libs_to_apk(output_apk, original_apk)
-        align_apk(fixed_apk)
-        sign_apk(fixed_apk)
-        print(f"✅ Patched: {fixed_apk}")
+
+        # 2. Rebuild APK
+        recompile_apk(decompiled_dir, unsigned_apk)
+
+        # 3. Inject native libraries into rebuilt APK
+        rebuilt_with_libs = inject_native_libs_to_apk(unsigned_apk, original_apk)
+
+        # 4. Align and sign
+        align_apk(rebuilt_with_libs)
+        sign_apk(rebuilt_with_libs)
+
+        # 5. Rename final output
+        shutil.move(rebuilt_with_libs, final_apk)
+        print(f"✅ Patched & signed APK: {final_apk}")
 
 
 # ====== Entry Point ======
