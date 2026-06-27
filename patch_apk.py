@@ -135,11 +135,20 @@ def get_apk_version(apk_path):
         print(f"Detected APK Version: {APK_VERSION}")
         return
     fname = os.path.basename(apk_path)
-    m = re.search(r'v(\d+(?:\.\d+)*(?:-[A-Za-z0-9_.-]+)?)', fname)
+    # Match version part and ensure we stop before the .apk extension
+    m = re.search(r'v(\d+(?:\.\d+)*(?:-[A-Za-z0-9_.-]+)?)\.apk$', fname)
     if m:
         APK_VERSION = m.group(1)
     else:
-        APK_VERSION = "unknown"
+        # fallback: try to match without requiring .apk at end
+        m2 = re.search(r'v(\d+(?:\.\d+)*(?:-[A-Za-z0-9_.-]+)?)', fname)
+        if m2:
+            APK_VERSION = m2.group(1)
+        else:
+            APK_VERSION = "unknown"
+    # safety: strip accidental trailing '.apk' if present
+    if APK_VERSION.endswith(".apk"):
+        APK_VERSION = APK_VERSION[:-4]
     print(f"Detected APK Version: {APK_VERSION}")
 
 def modify_xml(decompiled_path):
@@ -302,10 +311,15 @@ def sign_apk(apk_path):
 def patch_apk(apk_path):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     get_apk_version(apk_path)
+    # ensure APK_VERSION does not include '.apk' (extra safety)
+    if APK_VERSION.endswith(".apk"):
+        apk_ver_for_name = APK_VERSION[:-4]
+    else:
+        apk_ver_for_name = APK_VERSION
     for color, name in THEME_COLORS.items():
         decompiled_path = f"{apk_path}_decompiled_{color}"
-        # APK_VERSION already contains full suffix (e.g., 12.0.0-release.0), so do not append extra '-release.0'
-        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}.apk")
+        # Use sanitized apk_ver_for_name to avoid double .apk
+        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{apk_ver_for_name}.apk")
         print(f"\nProcessing theme color {color} ({name})")
         decompile_apk(apk_path, decompiled_path)
         update_apktool_yml(decompiled_path)
