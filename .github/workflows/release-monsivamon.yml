@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Fetch remote latest tag and write to .github/workflows/monsivamon_latest.md
+      - name: Fetch remote latest tag and write to /monsivamon_latest.md
         id: update_monsivamon_latest
         env:
           REMOTE_OWNER: monsivamon
@@ -30,7 +30,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # get remote latest tag
           remote_api="https://api.github.com/repos/${REMOTE_OWNER}/${REMOTE_REPO}/releases/latest"
           remote_tag=$(curl -sSL -H "Accept: application/vnd.github.v3+json" "$remote_api" | jq -r .tag_name)
           if [ -z "$remote_tag" ] || [ "$remote_tag" = "null" ]; then
@@ -39,14 +38,9 @@ jobs:
           fi
           echo "Remote latest tag: $remote_tag"
 
-          # ensure directory exists
-          mkdir -p .github/workflows
-
-          target_file=".github/workflows/monsivamon_latest.md"
-          # write tag to temp file
+          target_file="monsivamon_latest.md"
           echo "$remote_tag" > "${target_file}.new"
 
-          # if file differs, commit and push
           if [ -f "$target_file" ]; then
             if cmp -s "$target_file" "${target_file}.new"; then
               echo "No change in ${target_file}"
@@ -58,7 +52,6 @@ jobs:
               git config user.email "github-actions[bot]@users.noreply.github.com"
               git add "$target_file"
               git commit -m "chore: update monsivamon_latest.md -> ${remote_tag}" || echo "No commit needed"
-              # push using token
               git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
             fi
           else
@@ -71,14 +64,13 @@ jobs:
             git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
           fi
 
-          # expose the remote tag for later steps
           echo "REMOTE_MONSIVAMON_TAG=${remote_tag}" >> $GITHUB_ENV
 
       - name: Read monsivamon_latest.md into env
         id: read_local_latest
         run: |
           set -euo pipefail
-          file=".github/workflows/monsivamon_latest.md"
+          file="monsivamon_latest.md"
           if [ -f "$file" ]; then
             tag=$(cat "$file" | tr -d '\r\n' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
             echo "LOCAL_MONSIVAMON_TAG=$tag" >> $GITHUB_ENV
@@ -97,7 +89,6 @@ jobs:
       - name: Check if releases match (use local monsivamon_latest.md)
         id: check_releases
         run: |
-          # prefer LOCAL_MONSIVAMON_TAG (file), fallback to REMOTE_MONSIVAMON_TAG
           MONSIVAMON_TAG="${{ env.LOCAL_MONSIVAMON_TAG }}"
           if [ -z "$MONSIVAMON_TAG" ]; then
             MONSIVAMON_TAG="${{ env.REMOTE_MONSIVAMON_TAG }}"
@@ -112,7 +103,6 @@ jobs:
           else
             echo "Releases differ. Proceeding with download and processing."
             echo "SKIP=false" >> $GITHUB_ENV
-            # also expose MONSIVAMON_TAG for later download step
             echo "MONSIVAMON_TAG=$MONSIVAMON_TAG" >> $GITHUB_ENV
           fi
 
