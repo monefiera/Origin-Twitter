@@ -18,15 +18,15 @@ jobs:
       - name: Get latest release info from GitHub
         id: get_release_piko_and_origin
         run: |
-          MONAVISION_TAG=$(curl -s https://api.github.com/repos/monsivamon/twitter-apk/releases/latest | jq -r .tag_name)
-          echo "MONAVISION_TAG=${MONAVISION_TAG}" >> $GITHUB_ENV
+          MONSIVAMON_TAG=$(curl -s https://api.github.com/repos/monsivamon/twitter-apk/releases/latest | jq -r .tag_name)
+          echo "MONSIVAMON_TAG=${MONSIVAMON_TAG}" >> $GITHUB_ENV
           MONEFIERA_TAG=$(curl -s https://api.github.com/repos/monefiera/Origin-Twitter/releases/latest | jq -r .tag_name)
           echo "MONEFIERA_TAG=${MONEFIERA_TAG}" >> $GITHUB_ENV
 
       - name: Check if releases match
         id: check_releases
         run: |
-          if [ "${{ env.MONAVISION_TAG }}" == "${{ env.MONEFIERA_TAG }}" ]; then
+          if [ "${{ env.MONSIVAMON_TAG }}" == "${{ env.MONEFIERA_TAG }}" ]; then
             echo "Releases match. Skipping download and processing."
             echo "SKIP=true" >> $GITHUB_ENV
           else
@@ -87,9 +87,9 @@ jobs:
       - name: Download newest twitter-piko APK from release assets
         if: ${{ env.SKIP == 'false' }}
         env:
-          REPO_OWNER: monavision
+          REPO_OWNER: monsivamon
           REPO_NAME: twitter-apk
-          TAG: ${{ env.MONAVISION_TAG }}
+          TAG: ${{ env.MONSIVAMON_TAG }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
