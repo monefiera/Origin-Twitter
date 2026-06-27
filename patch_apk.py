@@ -5,12 +5,13 @@ import xml.etree.ElementTree as ET
 import re
 import shutil
 import yaml
+from functools import cmp_to_key
 
 APK_TOOL = "apktool"
 OUTPUT_DIR = "patched_apks"
-APK_VERSION = None 
+APK_VERSION = None
 AAPT2 = "aapt2"
-USE_AAPT2_OPTIMIZE = False   
+USE_AAPT2_OPTIMIZE = False
 KEYSTORE_PATH = "./origin-twitter.keystore"
 ALIAS = "origin"
 STOREPASS = "123456789"
@@ -29,12 +30,69 @@ THEME_COLORS = {
     "ffadc0": "MateChan"
 }
 
-# Obtaining the version from GitHub environment variables
-apk_version = os.getenv('CRIMERA_TAG')  
-apk_file_name = f"twitter-piko-v{apk_version}.apk" 
-apk_path = f"downloads/{apk_file_name}"  
+def parse_version_from_name(name):
+    m = re.search(r'v(\d+(?:\.\d+)*)(?:-([A-Za-z0-9_.-]+))?', name)
+    if not m:
+        return None
+    num = m.group(1)
+    rest = m.group(2) or ""
+    parts = [int(p) for p in num.split('.')]
+    while len(parts) < 3:
+        parts.append(0)
+    return (parts[0], parts[1], parts[2], rest)
 
-print(f"APK Path: {apk_path}")
+def compare_versions(a, b):
+    pa = parse_version_from_name(a)
+    pb = parse_version_from_name(b)
+    if pa is None and pb is None:
+        return 0
+    if pa is None:
+        return -1
+    if pb is None:
+        return 1
+    for i in range(3):
+        if pa[i] < pb[i]:
+            return -1
+        if pa[i] > pb[i]:
+            return 1
+    if pa[3] < pb[3]:
+        return -1
+    if pa[3] > pb[3]:
+        return 1
+    return 0
+
+def choose_latest_apk_in_downloads(download_dir="downloads"):
+    if not os.path.isdir(download_dir):
+        return None
+    candidates = []
+    for fname in os.listdir(download_dir):
+        if re.match(r'^twitter-piko-v[0-9]', fname) and fname.endswith('.apk'):
+            candidates.append(fname)
+    if not candidates:
+        return None
+    candidates.sort(key=cmp_to_key(compare_versions))
+    newest = candidates[-1]
+    return os.path.join(download_dir, newest)
+
+# Determine apk_path: prefer DOWNLOADED_APK env var, else auto-detect
+env_downloaded = os.getenv('DOWNLOADED_APK')
+if env_downloaded:
+    apk_path = env_downloaded
+else:
+    apk_path = choose_latest_apk_in_downloads()
+    if apk_path is None:
+        apk_version_env = os.getenv('CRIMERA_TAG')
+        if apk_version_env:
+            apk_file_name = f"twitter-piko-v{apk_version_env}.apk"
+            apk_path = os.path.join("downloads", apk_file_name)
+        else:
+            apk_path = None
+
+if apk_path:
+    print(f"APK Path: {apk_path}")
+else:
+    print("No APK path could be determined. Please set DOWNLOADED_APK or place twitter-piko-*.apk in downloads/")
+    apk_path = "downloads/NOT_FOUND.apk"
 
 def decompile_apk(apk_path, output_path):
     print(f"Checking if APK file exists: {apk_path}")
@@ -43,9 +101,6 @@ def decompile_apk(apk_path, output_path):
     subprocess.run([APK_TOOL, "d", apk_path, "-o", output_path, "--force"], check=True)
 
 def update_apktool_yml(decompiled_path):
-    """
-    Update apktool.yml so that .so files are not recompressed
-    """
     yml_path = os.path.join(decompiled_path, "apktool.yml")
     if os.path.exists(yml_path):
         print(f"Updating doNotCompress in {yml_path}")
@@ -61,9 +116,6 @@ def update_apktool_yml(decompiled_path):
         print(f"{yml_path} not found. Skipping update for doNotCompress.")
 
 def modify_manifest(decompiled_path):
-    """
-    Change the android:extractNativeLibs attribute of the <application> tag in AndroidManifest.xml to true
-    """
     manifest_path = os.path.join(decompiled_path, "AndroidManifest.xml")
     if not os.path.exists(manifest_path):
         return
@@ -78,9 +130,14 @@ def modify_manifest(decompiled_path):
 
 def get_apk_version(apk_path):
     global APK_VERSION
-    match = re.search(r"twitter-piko-v(\d+\.\d+\.\d+)", apk_path)
-    if match:
-        APK_VERSION = match.group(1)
+    if not apk_path:
+        APK_VERSION = "unknown"
+        print(f"Detected APK Version: {APK_VERSION}")
+        return
+    fname = os.path.basename(apk_path)
+    m = re.search(r'v(\d+(?:\.\d+)*(?:-[A-Za-z0-9_.-]+)?)', fname)
+    if m:
+        APK_VERSION = m.group(1)
     else:
         APK_VERSION = "unknown"
     print(f"Detected APK Version: {APK_VERSION}")
@@ -155,8 +212,8 @@ def hex_to_smali(hex_color):
 def modify_smali(decompiled_path, color):
     smali_color = hex_to_smali(color) + "00000000L"
     patterns = {
-        re.compile(r"-0xe2641000000000L", re.IGNORECASE): smali_color, 
-        re.compile(r"0xff1d9bf0L", re.IGNORECASE): f"0xff{color}L",  
+        re.compile(r"-0xe2641000000000L", re.IGNORECASE): smali_color,
+        re.compile(r"0xff1d9bf0L", re.IGNORECASE): f"0xff{color}L",
     }
     print(f"Scanning all .smali files under: {decompiled_path}")
     for root_dir, _, files in os.walk(decompiled_path):
@@ -247,11 +304,12 @@ def patch_apk(apk_path):
     get_apk_version(apk_path)
     for color, name in THEME_COLORS.items():
         decompiled_path = f"{apk_path}_decompiled_{color}"
-        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}-release.0.apk")
+        # APK_VERSION already contains full suffix (e.g., 12.0.0-release.0), so do not append extra '-release.0'
+        patched_apk = os.path.join(OUTPUT_DIR, f"Origin-Twitter.{name}.v{APK_VERSION}.apk")
         print(f"\nProcessing theme color {color} ({name})")
         decompile_apk(apk_path, decompiled_path)
-        update_apktool_yml(decompiled_path)  
-        modify_manifest(decompiled_path)     
+        update_apktool_yml(decompiled_path)
+        modify_manifest(decompiled_path)
         modify_xml(decompiled_path)
         modify_styles(decompiled_path)
         modify_colors(decompiled_path, color)
@@ -261,5 +319,5 @@ def patch_apk(apk_path):
         print(f"Generated: {patched_apk}")
 
 if __name__ == "__main__":
-    print(f"Detected APK Version: {apk_version}")
+    print(f"Determined APK path: {apk_path}")
     patch_apk(apk_path)
