@@ -18,15 +18,15 @@ jobs:
       - name: Get latest release info from GitHub
         id: get_release_piko_and_origin
         run: |
-          MONSIVAMON_TAG=$(curl -s https://api.github.com/repos/monsivamon/twitter-apk/releases/latest | jq -r .tag_name)
-          echo "MONSIVAMON_TAG=${MONSIVAMON_TAG}" >> $GITHUB_ENV
+          CRIMERA_TAG=$(curl -s https://api.github.com/repos/crimera/twitter-apk/releases/latest | jq -r .tag_name)
+          echo "CRIMERA_TAG=${CRIMERA_TAG}" >> $GITHUB_ENV
           MONEFIERA_TAG=$(curl -s https://api.github.com/repos/monefiera/Origin-Twitter/releases/latest | jq -r .tag_name)
           echo "MONEFIERA_TAG=${MONEFIERA_TAG}" >> $GITHUB_ENV
 
       - name: Check if releases match
         id: check_releases
         run: |
-          if [ "${{ env.MONSIVAMON_TAG }}" == "${{ env.MONEFIERA_TAG }}" ]; then
+          if [ "${{ env.CRIMERA_TAG }}" == "${{ env.MONEFIERA_TAG }}" ]; then
             echo "Releases match. Skipping download and processing."
             echo "SKIP=true" >> $GITHUB_ENV
           else
@@ -84,56 +84,10 @@ jobs:
         if: ${{ env.SKIP == 'false' }}
         run: mkdir -p downloads
 
-      - name: Download newest twitter-piko APK from release assets
+      - name: Download APK file
         if: ${{ env.SKIP == 'false' }}
-        env:
-          REPO_OWNER: monsivamon
-          REPO_NAME: twitter-apk
-          TAG: ${{ env.MONSIVAMON_TAG }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-
-          echo "Fetching release assets for ${REPO_OWNER}/${REPO_NAME} tag ${TAG}"
-          api_url="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags/${TAG}"
-
-          assets_json=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" "$api_url")
-
-          # Extract asset name and browser_download_url for twitter-piko-v*.apk
-          mapfile -t assets < <(echo "$assets_json" \
-            | jq -r '.assets[] | select(.name | test("^twitter-piko-v[0-9].*\\.apk$")) | "\(.name)\t\(.browser_download_url)"')
-
-          if [ ${#assets[@]} -eq 0 ]; then
-            echo "No twitter-piko APK assets found for tag ${TAG}"
-            exit 1
-          fi
-
-          tmpfile=$(mktemp)
-          for a in "${assets[@]}"; do
-            name="${a%%$'\t'*}"
-            url="${a#*$'\t'}"
-            # extract version like v12.0.0-release.0
-            if [[ "$name" =~ ^twitter-piko-(v[0-9A-Za-z_.-]+)\.apk$ ]]; then
-              ver="${BASH_REMATCH[1]}"
-            else
-              ver=$(echo "$name" | sed -E 's/^twitter-piko-(v[^.]+).*$/\1/')
-            fi
-            printf "%s\t%s\n" "$ver" "$url" >> "$tmpfile"
-          done
-
-          newest_line=$(sort -t$'\t' -k1,1 -V "$tmpfile" | tail -n1)
-          rm -f "$tmpfile"
-
-          newest_ver=$(echo "$newest_line" | cut -f1)
-          newest_url=$(echo "$newest_line" | cut -f2)
-
-          echo "Selected newest APK: $newest_ver"
-          echo "Downloading from: $newest_url"
-          mkdir -p downloads
-          wget -q --show-progress "$newest_url" -O "downloads/twitter-piko-${newest_ver}.apk"
-          echo "Saved to downloads/twitter-piko-${newest_ver}.apk"
-          # expose chosen filename for later steps if needed
-          echo "DOWNLOADED_APK=downloads/twitter-piko-${newest_ver}.apk" >> $GITHUB_ENV
+          wget "https://github.com/crimera/twitter-apk/releases/download/${{ env.CRIMERA_TAG }}/twitter-piko-v${{ env.CRIMERA_TAG }}.apk" -O downloads/twitter-piko-v${{ env.CRIMERA_TAG }}.apk
 
       - name: List files in downloads directory
         if: ${{ env.SKIP == 'false' }}

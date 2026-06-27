@@ -1,0 +1,229 @@
+name: Auto Patch & Release APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Fetch remote latest tag and write to .github/workflows/monsivamon_latest.md
+        id: update_monsivamon_latest
+        env:
+          REMOTE_OWNER: monsivamon
+          REMOTE_REPO: twitter-apk
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          # get remote latest tag
+          remote_api="https://api.github.com/repos/${REMOTE_OWNER}/${REMOTE_REPO}/releases/latest"
+          remote_tag=$(curl -sSL -H "Accept: application/vnd.github.v3+json" "$remote_api" | jq -r .tag_name)
+          if [ -z "$remote_tag" ] || [ "$remote_tag" = "null" ]; then
+            echo "Failed to fetch remote latest tag for ${REMOTE_OWNER}/${REMOTE_REPO}"
+            exit 1
+          fi
+          echo "Remote latest tag: $remote_tag"
+
+          # ensure directory exists
+          mkdir -p .github/workflows
+
+          target_file=".github/workflows/monsivamon_latest.md"
+          # write tag to temp file
+          echo "$remote_tag" > "${target_file}.new"
+
+          # if file differs, commit and push
+          if [ -f "$target_file" ]; then
+            if cmp -s "$target_file" "${target_file}.new"; then
+              echo "No change in ${target_file}"
+              rm -f "${target_file}.new"
+            else
+              echo "Updating ${target_file} (tag changed)"
+              mv "${target_file}.new" "$target_file"
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git add "$target_file"
+              git commit -m "chore: update monsivamon_latest.md -> ${remote_tag}" || echo "No commit needed"
+              # push using token
+              git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
+            fi
+          else
+            echo "Creating ${target_file}"
+            mv "${target_file}.new" "$target_file"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$target_file"
+            git commit -m "chore: add monsivamon_latest.md -> ${remote_tag}" || echo "No commit needed"
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
+          fi
+
+          # expose the remote tag for later steps
+          echo "REMOTE_MONSIVAMON_TAG=${remote_tag}" >> $GITHUB_ENV
+
+      - name: Read monsivamon_latest.md into env
+        id: read_local_latest
+        run: |
+          set -euo pipefail
+          file=".github/workflows/monsivamon_latest.md"
+          if [ -f "$file" ]; then
+            tag=$(cat "$file" | tr -d '\r\n' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
+            echo "LOCAL_MONSIVAMON_TAG=$tag" >> $GITHUB_ENV
+            echo "Found local tag: $tag"
+          else
+            echo "LOCAL_MONSIVAMON_TAG=" >> $GITHUB_ENV
+            echo "monsivamon_latest.md not found"
+          fi
+
+      - name: Get latest release info from origin (monefiera)
+        id: get_origin_latest
+        run: |
+          MONEFIERA_TAG=$(curl -s https://api.github.com/repos/monefiera/Origin-Twitter/releases/latest | jq -r .tag_name)
+          echo "MONEFIERA_TAG=${MONEFIERA_TAG}" >> $GITHUB_ENV
+
+      - name: Check if releases match (use local monsivamon_latest.md)
+        id: check_releases
+        run: |
+          # prefer LOCAL_MONSIVAMON_TAG (file), fallback to REMOTE_MONSIVAMON_TAG
+          MONSIVAMON_TAG="${{ env.LOCAL_MONSIVAMON_TAG }}"
+          if [ -z "$MONSIVAMON_TAG" ]; then
+            MONSIVAMON_TAG="${{ env.REMOTE_MONSIVAMON_TAG }}"
+          fi
+
+          echo "Using MONSIVAMON_TAG: $MONSIVAMON_TAG"
+          echo "MONEFIERA_TAG: ${{ env.MONEFIERA_TAG }}"
+
+          if [ "$MONSIVAMON_TAG" = "${{ env.MONEFIERA_TAG }}" ]; then
+            echo "Releases match. Skipping download and processing."
+            echo "SKIP=true" >> $GITHUB_ENV
+          else
+            echo "Releases differ. Proceeding with download and processing."
+            echo "SKIP=false" >> $GITHUB_ENV
+            # also expose MONSIVAMON_TAG for later download step
+            echo "MONSIVAMON_TAG=$MONSIVAMON_TAG" >> $GITHUB_ENV
+          fi
+
+      - name: Install requests and PyYAML
+        if: ${{ env.SKIP == 'false' }}
+        run: pip install requests PyYAML
+
+      - name: Install dependencies
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl wget jq unzip
+
+      - name: Install Android SDK & Build Tools
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
+          unzip sdk-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          yes | sdkmanager --install "platform-tools" "build-tools;34.0.0" "cmdline-tools;latest"
+
+      - name: Set environment variables
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH" >> $GITHUB_ENV
+
+      - name: Install apktool
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O apktool
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.11.1/apktool_2.11.1.jar -O apktool.jar
+          sudo mv apktool.jar /usr/local/bin/
+
+      - name: Print tool versions
+        if: ${{ env.SKIP == 'false' }}
+        run: |
+          echo "apktool version:"
+          apktool -version
+          echo "aapt2 version:"
+          aapt2 version
+
+      - name: Create downloads directory if not exists
+        if: ${{ env.SKIP == 'false' }}
+        run: mkdir -p downloads
+
+      - name: Download newest twitter-piko APK from release assets
+        if: ${{ env.SKIP == 'false' }}
+        env:
+          REPO_OWNER: monsivamon
+          REPO_NAME: twitter-apk
+          TAG: ${{ env.MONSIVAMON_TAG }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "Fetching release assets for ${REPO_OWNER}/${REPO_NAME} tag ${TAG}"
+          api_url="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags/${TAG}"
+
+          assets_json=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" "$api_url")
+
+          mapfile -t assets < <(echo "$assets_json" \
+            | jq -r '.assets[] | select(.name | test("^twitter-piko-v[0-9].*\\.apk$")) | "\(.name)\t\(.browser_download_url)"')
+
+          if [ ${#assets[@]} -eq 0 ]; then
+            echo "No twitter-piko APK assets found for tag ${TAG}"
+            exit 1
+          fi
+
+          tmpfile=$(mktemp)
+          for a in "${assets[@]}"; do
+            name="${a%%$'\t'*}"
+            url="${a#*$'\t'}"
+            if [[ "$name" =~ ^twitter-piko-(v[0-9A-Za-z_.-]+)\.apk$ ]]; then
+              ver="${BASH_REMATCH[1]}"
+            else
+              ver=$(echo "$name" | sed -E 's/^twitter-piko-(v[^.]+).*$/\1/')
+            fi
+            printf "%s\t%s\n" "$ver" "$url" >> "$tmpfile"
+          done
+
+          newest_line=$(sort -t$'\t' -k1,1 -V "$tmpfile" | tail -n1)
+          rm -f "$tmpfile"
+
+          newest_ver=$(echo "$newest_line" | cut -f1)
+          newest_url=$(echo "$newest_line" | cut -f2)
+
+          echo "Selected newest APK: $newest_ver"
+          echo "Downloading from: $newest_url"
+          mkdir -p downloads
+          wget -q --show-progress "$newest_url" -O "downloads/twitter-piko-${newest_ver}.apk"
+          echo "Saved to downloads/twitter-piko-${newest_ver}.apk"
+          echo "DOWNLOADED_APK=downloads/twitter-piko-${newest_ver}.apk" >> $GITHUB_ENV
+
+      - name: List files in downloads directory
+        if: ${{ env.SKIP == 'false' }}
+        run: ls -l downloads/
+
+      - name: Run Patch APK script
+        if: ${{ env.SKIP == 'false' }}
+        run: python patch_apk.py
+
+      - name: Run Release APK script
+        if: ${{ env.SKIP == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.MONE_FIERA_TOKEN }}
+        run: python release_apk.py
