@@ -1,4 +1,4 @@
-name: Auto Patch & Release APK
+name: Auto Patch & Release APK Legacy
 
 on:
   workflow_dispatch:
