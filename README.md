@@ -14,11 +14,19 @@ My Personal Twitter-mod Build for Colorful Lovers. based on [Piko](https://githu
 Piko-Twitter Mod with 10 theme colors<br>
 
 ### Important Section
+**Long Time No See😅 Origin Twitter is Back**<br>
+
+As my personal life has stabilized and the login issues are being resolved, I am resuming updates.<br>
+I have switched to using [monsivamon/twitter-apk](https://github.com/monsivamon/twitter-apk), which I consider to be the most stable option at the moment.<br>
+
+<details>
+<summary>Previous information (2025/02/20～2026/06/28)</summary>
+
 **The new method is to get the apk from [crimera/twitter-apk](https://github.com/crimera/twitter-apk) repository and apply the patch script!**<br>
 
 This means that users can no longer choose between Piko or Hachidori, but instead I can provide rapidly-updates with each release of crimera.<br>
 Currently, I use the prebuilt apk from crimera, but in the future I'll improve it to download from [apkmirror](https://www.apkmirror.com/apk/x-corp/twitter/), do AntiSplit process, and apply Piko, just like the original repository.<br>
-
+</details>
 
 (To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
 
@@ -29,20 +37,24 @@ Currently, I use the prebuilt apk from crimera, but in the future I'll improve i
 
 ## Color Menu
 ①Original Colors from Twitter for Web<br>
-💧Origin Blue(#1d9bf0)<br>
-⭐Star Gold(#fed400)<br>
-🌸Sakura Red(#f91880)<br>
-🐙Octopus Purple(#7856ff)<br>
-🔥Flare Orange(#ff7a00)<br>
-🥑Avocado Green(#31c88e)<br>
+| Name | ColorCode |
+| :--- | :--- |
+| 💧 **Origin Blue** | `#1d9bf0` |
+| ⭐ **Star Gold** | `#fed400` |
+| 🌸 **Sakura Red** | `#f91880` |
+| 🐙 **Octopus Purple** | `#7856ff` |
+| 🔥 **Flare Orange** | `#ff7a00` |
+| 🥑 **Avocado Green** | `#31c88e` |
 
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
-🌹Crimsonate(#c20024)<br>
-💎Izumo Lazurite(#1e50a2)<br>
-☁Monotone(#808080)<br>
-🩷MateChan Pink(#ffadc0)<br>
+| Name | ColorCode | Remarks |
+| :--- | :--- | :--- |
+| 🌹 **Crimsonate** | `#c20024` | A crimson hue spreading before the eyes |
+| 💎 **Izumo Lazurite** | `#1e50a2` | The serene lapis lazuli hue of a loved one |
+| ☁ **Monotone** | `#808080` | Gray-toned / Based on gray |
+| 🩷 **MateChan Pink** | `#ffadc0` | Pale pink for specific users |
 
 ## How to make colorful mod (for piko developers)
 <details>
@@ -121,14 +133,15 @@ I'm currently looking for a patchable LSPatch.<br>
 ・[APKToolGUI](https://github.com/AndnixSH/APKToolGUI) & [Virtual Studio Code](https://code.visualstudio.com/) to edit any resources<br>
 ・[MT Manager](https://mt2.cn) to sign apk<br>
 ・[Hex To Smali Online Converter](https://pantrif.github.io/HexToSmaliConverter/#) to analyze some colors<br>
-・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 </details>
 
 ## Credits
 I continue to be grateful to them🙇🏻<br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
+・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 ・[crimera](https://github.com/crimera)：The Founder pf Piko. Currently I'm coloring his apk. Without his Revanced, Origin would not have continued<br>
 ・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to change smali color value. And Swakshan is Co-Founder of Piko<br>
+・[YuzuMikan404](https://github.com/YuzuMikan404)：While I was away, you created a fork called [Origin Twitter Neo](https://github.com/YuzuMikan404/Origin-Twitter-Neo) and filled the void. Thank you😍<br>
 ・[Risa Yuzuki](https://yuzu-risa.com)：The name holder of [Crimsonate](https://www.youtube.com/watch?v=LuN5t8xIcKM). It is my most favorite song<br>
 ・[MateChan](https://matechan.com)：One of color is for him<br>
 ・And Another One Painter...<br>
