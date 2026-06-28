@@ -22,101 +22,76 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Fetch remote latest tag and write to /monsivamon_latest.md
-        id: update_monsivamon_latest
+      - name: Read local monsivamon_latest.md
+        id: read_local_tag
+        run: |
+          file="monsivamon_latest.md"
+          if [ -f "$file" ]; then
+            local_tag=$(cat "$file" | tr -d '\r\n' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
+            echo "LOCAL_MONSIVAMON_TAG=$local_tag" >> $GITHUB_ENV
+            echo "Local tag: $local_tag"
+          else
+            echo "LOCAL_MONSIVAMON_TAG=" >> $GITHUB_ENV
+            echo "Local tag file not found"
+          fi
+
+      - name: Fetch remote monsivamon/twitter-apk latest tag
+        id: fetch_remote_tag
         env:
-          REMOTE_OWNER: monsivamon
-          REMOTE_REPO: twitter-apk
+          OWNER: monsivamon
+          REPO: twitter-apk
+        run: |
+          api="https://api.github.com/repos/${OWNER}/${REPO}/releases/latest"
+          remote_tag=$(curl -sSL "$api" | jq -r .tag_name)
+          echo "REMOTE_MONSIVAMON_TAG=$remote_tag" >> $GITHUB_ENV
+          echo "Remote tag: $remote_tag"
+
+      - name: Compare tags and update only if remote is newer
+        id: compare_and_update
+        env:
+          REMOTE: ${{ env.REMOTE_MONSIVAMON_TAG }}
+          LOCAL: ${{ env.LOCAL_MONSIVAMON_TAG }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
-          remote_api="https://api.github.com/repos/${REMOTE_OWNER}/${REMOTE_REPO}/releases/latest"
-          remote_tag=$(curl -sSL -H "Accept: application/vnd.github.v3+json" "$remote_api" | jq -r .tag_name)
-          if [ -z "$remote_tag" ] || [ "$remote_tag" = "null" ]; then
-            echo "Failed to fetch remote latest tag for ${REMOTE_OWNER}/${REMOTE_REPO}"
-            exit 1
-          fi
-          echo "Remote latest tag: $remote_tag"
+          echo "Remote: $REMOTE"
+          echo "Local: $LOCAL"
 
-          target_file="monsivamon_latest.md"
-          echo "$remote_tag" > "${target_file}.new"
-
-          if [ -f "$target_file" ]; then
-            if cmp -s "$target_file" "${target_file}.new"; then
-              echo "No change in ${target_file}"
-              rm -f "${target_file}.new"
-            else
-              echo "Updating ${target_file} (tag changed)"
-              mv "${target_file}.new" "$target_file"
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              git add "$target_file"
-              git commit -m "chore: update monsivamon_latest.md -> ${remote_tag}" || echo "No commit needed"
-              git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
-            fi
+          if [ -z "$LOCAL" ]; then
+            update=true
           else
-            echo "Creating ${target_file}"
-            mv "${target_file}.new" "$target_file"
+            newest=$(printf "%s\n%s\n" "$LOCAL" "$REMOTE" | sort -V | tail -n1)
+            if [ "$newest" = "$REMOTE" ] && [ "$REMOTE" != "$LOCAL" ]; then
+              update=true
+            else
+              update=false
+            fi
+          fi
+
+          if [ "$update" = true ]; then
+            echo "$REMOTE" > monsivamon_latest.md
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$target_file"
-            git commit -m "chore: add monsivamon_latest.md -> ${remote_tag}" || echo "No commit needed"
+            git add monsivamon_latest.md
+            git commit -m "update monsivamon_latest.md → $REMOTE" || echo "No commit"
             git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
-          fi
-
-          echo "REMOTE_MONSIVAMON_TAG=${remote_tag}" >> $GITHUB_ENV
-
-      - name: Read monsivamon_latest.md into env
-        id: read_local_latest
-        run: |
-          set -euo pipefail
-          file="monsivamon_latest.md"
-          if [ -f "$file" ]; then
-            tag=$(cat "$file" | tr -d '\r\n' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
-            echo "LOCAL_MONSIVAMON_TAG=$tag" >> $GITHUB_ENV
-            echo "Found local tag: $tag"
-          else
-            echo "LOCAL_MONSIVAMON_TAG=" >> $GITHUB_ENV
-            echo "monsivamon_latest.md not found"
-          fi
-
-      - name: Get latest release info from origin (monefiera)
-        id: get_origin_latest
-        run: |
-          MONEFIERA_TAG=$(curl -s https://api.github.com/repos/monefiera/Origin-Twitter/releases/latest | jq -r .tag_name)
-          echo "MONEFIERA_TAG=${MONEFIERA_TAG}" >> $GITHUB_ENV
-
-      - name: Check if releases match (use local monsivamon_latest.md)
-        id: check_releases
-        run: |
-          MONSIVAMON_TAG="${{ env.LOCAL_MONSIVAMON_TAG }}"
-          if [ -z "$MONSIVAMON_TAG" ]; then
-            MONSIVAMON_TAG="${{ env.REMOTE_MONSIVAMON_TAG }}"
-          fi
-
-          echo "Using MONSIVAMON_TAG: $MONSIVAMON_TAG"
-          echo "MONEFIERA_TAG: ${{ env.MONEFIERA_TAG }}"
-
-          if [ "$MONSIVAMON_TAG" = "${{ env.MONEFIERA_TAG }}" ]; then
-            echo "Releases match. Skipping download and processing."
-            echo "SKIP=true" >> $GITHUB_ENV
-          else
-            echo "Releases differ. Proceeding with download and processing."
             echo "SKIP=false" >> $GITHUB_ENV
-            echo "MONSIVAMON_TAG=$MONSIVAMON_TAG" >> $GITHUB_ENV
+            echo "MONSIVAMON_TAG=$REMOTE" >> $GITHUB_ENV
+          else
+            echo "SKIP=true" >> $GITHUB_ENV
           fi
-
-      - name: Install requests and PyYAML
-        if: ${{ env.SKIP == 'false' }}
-        run: pip install requests PyYAML
 
       - name: Install dependencies
         if: ${{ env.SKIP == 'false' }}
         run: |
           sudo apt-get update && sudo apt-get install -y curl wget jq unzip
-
+          
+      - name: Install requests and PyYAML
+        if: ${{ env.SKIP == 'false' }}
+        run: pip install requests PyYAML
+          
       - name: Install Android SDK & Build Tools
         if: ${{ env.SKIP == 'false' }}
         run: |
