@@ -14,7 +14,7 @@ My Personal Twitter-mod Build for Colorful Lovers. based on [Piko](https://githu
 Piko-Twitter Mod with 10 theme colors<br>
 
 ### Important Section
-**Long Time No See😅 Origin Twitter is Back**<br>
+**Long Time No See <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f605.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;">  Origin Twitter is Back**<br>
 
 As my personal life has stabilized and the login issues are being resolved, I am resuming updates.<br>
 I have switched to using [monsivamon/twitter-apk](https://github.com/monsivamon/twitter-apk), which I consider to be the most stable option at the moment.<br>
@@ -39,22 +39,22 @@ Currently, I use the prebuilt apk from crimera, but in the future I'll improve i
 ①Original Colors from Twitter for Web<br>
 | Name | ColorCode |
 | :--- | :--- |
-| 💧 **Origin Blue** | `#1d9bf0` |
-| ⭐ **Star Gold** | `#fed400` |
-| 🌸 **Sakura Red** | `#f91880` |
-| 🐙 **Octopus Purple** | `#7856ff` |
-| 🔥 **Flare Orange** | `#ff7a00` |
-| 🥑 **Avocado Green** | `#31c88e` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f4a7.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Origin Blue** | `#1d9bf0` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f31f.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Star Gold** | `#fed400` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f338.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Sakura Red** | `#f91880` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f419.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Octopus Purple** | `#7856ff` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f525.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Flare Orange** | `#ff7a00` |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f951.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Avocado Green** | `#31c88e` |
 
 And also you can choose my best colors<br>
 
 ②FIERA's Additional Colors<br>
 | Name | ColorCode | Remarks |
 | :--- | :--- | :--- |
-| 🌹 **Crimsonate** | `#c20024` | A crimson hue spreading before the eyes |
-| 💎 **Izumo Lazurite** | `#1e50a2` | The serene lapis lazuli hue of a loved one |
-| ☁ **Monotone** | `#808080` | Gray-toned / Based on gray |
-| 🩷 **MateChan Pink** | `#ffadc0` | Pale pink for specific users |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f339.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Crimsonate** | `#c20024` | A crimson hue spreading before the eyes |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f48e.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Izumo Lazurite** | `#1e50a2` | The serene lapis lazuli hue of a loved one |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/2601.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **Monotone** | `#808080` | Gray-toned / Based on gray |
+| <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1fa77.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"> **MateChan Pink** | `#ffadc0` | Pale pink for specific users |
 
 ## How to make colorful mod (for piko developers)
 <details>
@@ -136,7 +136,7 @@ I'm currently looking for a patchable LSPatch.<br>
 </details>
 
 ## Credits
-I continue to be grateful to them🙇🏻<br>
+I continue to be grateful to them <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f647-1f3fb.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"><br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
 ・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
 ・[crimera](https://github.com/crimera)：The Founder pf Piko. Currently I'm coloring his apk. Without his Revanced, Origin would not have continued<br>
