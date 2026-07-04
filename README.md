@@ -30,7 +30,7 @@ Currently, I use the prebuilt apk from crimera, but in the future I'll improve i
 
 (To piko Developers) Please let me know if there are any rights issues with this modification, ~~except for Elon~~<br>
 
-## Changes from original crimera's apk
+## Changes from original patched apk
 - You can choose your favorite from 10 colors themes<br>
 ・All signatures are the same, so colors can be easily changed by re-installing the app (since v10.80.1)<br>
 ・Origin Blue appears to have no significant change over the original, but minor color adjustments have been made<br>
@@ -139,7 +139,7 @@ I'm currently looking for a patchable LSPatch.<br>
 I continue to be grateful to them <img src="https://github.com/jdecked/twemoji/blob/main/assets/72x72/1f647-1f3fb.png?raw=true" style="height: 1em;width: 1em;margin: 0 0.05em 0 0.1em;vertical-align: -0.1em;"><br>
 ・[Twitter Inc.](https://twitter.com)：but it's gone…<br>
 ・[Web色見本 原色大辞典](https://www.colordic.org)：Help to Find any colors<br>
-・[crimera](https://github.com/crimera)：The Founder pf Piko. Currently I'm coloring his apk. Without his Revanced, Origin would not have continued<br>
+・[crimera](https://github.com/crimera)：The Founder pf Piko. Without his Revanced, Origin would not have continued<br>
 ・[Swakshan](https://github.com/Swakshan) & [Mufti Faishal](https://twitter.com/Mufti96)：Helpers to change smali color value. And Swakshan is Co-Founder of Piko<br>
 ・[monsivamon](https://github.com/monsivamon)：Current (as of 2026/06/28〜) APK repository owner<br>
 ・[YuzuMikan404](https://github.com/YuzuMikan404)：While I was away, you created a fork called [Origin Twitter Neo](https://github.com/YuzuMikan404/Origin-Twitter-Neo) and filled the void. Thank you😍<br>
