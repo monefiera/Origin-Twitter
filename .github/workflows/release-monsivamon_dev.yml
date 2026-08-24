@@ -2,7 +2,7 @@ name: Auto Patch & Release APK (Dev/Pre-release)
 
 on:
   schedule:
-    - cron: '16 02 * * *'
+    - cron: '02 16 * * *'
   workflow_dispatch:
 
 permissions:
