@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Read local monsivamon_latest.md
+      - name: Read local monsivamon_latest_dev.md
         id: read_local_tag
         run: |
           file="monsivamon_latest_dev.md"
@@ -79,11 +79,11 @@ jobs:
           fi
 
           if [ "$update" = true ]; then
-            echo "$REMOTE" > monsivamon_latest.md
+            echo "$REMOTE" > monsivamon_latest_dev.md
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add monsivamon_latest.md
-            git commit -m "update monsivamon_latest.md → $REMOTE" || echo "No commit"
+            git add monsivamon_latest_dev.md
+            git commit -m "update monsivamon_latest_dev.md → $REMOTE" || echo "No commit"
             git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${BRANCH}"
             echo "SKIP=false" >> $GITHUB_ENV
             echo "MONSIVAMON_TAG=$REMOTE" >> $GITHUB_ENV
