@@ -34,7 +34,7 @@ jobs:
             echo "LOCAL_MONSIVAMON_TAG=" >> $GITHUB_ENV
             echo "Local tag file not found"
           fi
-
+          
       - name: Fetch remote monsivamon/twitter-apk latest PRE-RELEASE tag
         id: fetch_remote_tag
         env:
@@ -42,18 +42,31 @@ jobs:
           REPO: twitter-apk
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           api="https://api.github.com/repos/${OWNER}/${REPO}/releases"
 
-          remote_tag=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" "$api" | jq -r '[.[] | select(.prerelease == true)][0].tag_name')
-          
-          if [ "$remote_tag" = "null" ] || [ -z "$remote_tag" ]; then
+          prerelease_tags=$(
+            curl -sSL \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              "$api" |
+            jq -r '.[] | select(.prerelease == true) | .tag_name'
+          )
+
+          if [ -z "$prerelease_tags" ]; then
             echo "No pre-release tags found."
             exit 1
           fi
 
-          echo "REMOTE_MONSIVAMON_TAG=$remote_tag" >> $GITHUB_ENV
-          echo "Remote Pre-release tag: $remote_tag"
+          remote_tag=$(
+            echo "$prerelease_tags" |
+            sort -V |
+            tail -n 1
+          )
 
+          echo "REMOTE_MONSIVAMON_TAG=$remote_tag" >> "$GITHUB_ENV"
+          echo "Latest Pre-release tag: $remote_tag"
+              
       - name: Compare tags and update only if remote is newer
         id: compare_and_update
         env:
